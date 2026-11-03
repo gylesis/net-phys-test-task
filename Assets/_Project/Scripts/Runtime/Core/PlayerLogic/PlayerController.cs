@@ -1,7 +1,9 @@
+using System;
 using Scripts.Runtime.Configs;
 using Scripts.Runtime.Core.CameraLogic;
 using Scripts.Runtime.Services;
 using Scripts.Runtime.Utils;
+using UniRx;
 using UnityEngine;
 using VContainer;
 
@@ -10,8 +12,9 @@ namespace Scripts.Runtime.Core.PlayerLogic
     [RequireComponent(typeof(CharacterController), typeof(AutoInjecter))]
     public class PlayerController : NetworkContext
     {
-        [SerializeField] private CharacterController _characterController;
         
+        [SerializeField] private CharacterController _characterController;
+
         private PlayerConfig _config;
         private InputService _input;
         private CameraController _cameraController;
@@ -51,19 +54,24 @@ namespace Scripts.Runtime.Core.PlayerLogic
             if (!IsOwner || !IsSpawned)
                 return;
 
-            if (_cameraController == null || !_cameraController.IsLocked) 
-                return;
-
             UpdateMovement();
         }
 
         private void UpdateMovement()
         {
             Vector2 input = _input.Move;
+            // Camera-relative: the keys mean "forward/strafe as seen by the camera".
             Vector3 planar = Quaternion.Euler(0f, _cameraController.Yaw, 0f) * new Vector3(input.x, 0f, input.y);
             planar = Vector3.ClampMagnitude(planar, 1f);
 
-            float speed = _config.MoveSpeed * (false ? _config.SprintMultiplier : 1f);
+            float speed = _config.MoveSpeed * (_input.SprintPressed ? _config.SprintMultiplier : 1f);
+
+            if (planar.sqrMagnitude > 0.001f)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(planar);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation,
+                    10f * Time.deltaTime);
+            }
 
             if (_characterController.isGrounded)
             {
@@ -79,7 +87,7 @@ namespace Scripts.Runtime.Core.PlayerLogic
             Vector3 velocity = planar * speed + Vector3.up * _verticalVelocity;
             _characterController.Move(velocity * Time.deltaTime);
         }
-        
+
         public void SetCursorLocked(bool locked)
         {
             Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;

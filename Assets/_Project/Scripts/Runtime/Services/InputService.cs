@@ -20,6 +20,7 @@ namespace Scripts.Runtime.Services
         private BetterActionReference _move;
         private BetterActionReference _look;
         private BetterActionReference _jump;
+        private BetterActionReference _sprint;
 
         public bool IsEnabled { get; private set; }
 
@@ -28,6 +29,8 @@ namespace Scripts.Runtime.Services
         public Vector2 Look { get; private set; }
 
         public bool JumpPressed { get; private set; }
+
+        public bool SprintPressed { get; private set; }
 
         [Inject]
         public InputService(GameConfig gameConfig)
@@ -41,6 +44,7 @@ namespace Scripts.Runtime.Services
             _move = _config.Move;
             _look = _config.Look;
             _jump = _config.Jump;
+            _sprint = _config.Sprint;
 
             IsEnabled = true;
         }
@@ -54,6 +58,7 @@ namespace Scripts.Runtime.Services
             Move = _move.ReadValue<Vector2>();
             Look = _look.ReadValue<Vector2>();
             JumpPressed = _jump.IsPerformed();
+            SprintPressed = _sprint.IsPerformed();
         }
 
         public void Dispose()
