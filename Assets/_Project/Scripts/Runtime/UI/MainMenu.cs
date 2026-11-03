@@ -1,10 +1,13 @@
 using Cysharp.Threading.Tasks;
 using Scripts.Runtime.Core.Net;
+using Scripts.Runtime.Core.States;
 using Scripts.Runtime.Utils;
 using TMPro;
 using UniRx;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using VContainer;
 
 namespace Scripts.Runtime.UI
 {
@@ -15,13 +18,20 @@ namespace Scripts.Runtime.UI
 
         [SerializeField] private TMP_InputField _ipInput;
         [SerializeField] private TMP_InputField _portInput;
-        
+        private GameStateMachine _gameStateMachine;
+
         protected override void Awake()
         {
             base.Awake();
 
             _hostBtn.Clicked.Subscribe(unit => HandleHostBtnClicked()).AddTo(destroyCancellationToken);
             _joinBtn.Clicked.Subscribe(unit => HandleJoinBtnClicked()).AddTo(destroyCancellationToken);
+        }
+
+        [Inject]
+        private void Construct(GameStateMachine gameStateMachine)
+        {
+            _gameStateMachine = gameStateMachine;
         }
 
         private void HandleJoinBtnClicked()
@@ -45,9 +55,17 @@ namespace Scripts.Runtime.UI
                 UIController.Instance.ShowInfoPopUp(Constants.PopUps.ErrorTitle, $"Error connecting to the server: {ConnectionManager.Instance.DisconnectReason}");
                 return;
             }
-
+            
             UIController.Instance.HideMenu<MainMenu>();
-            UIController.Instance.ShowMenu<LobbyMenu>();
+            
+            if (SceneManager.GetActiveScene().name == "Gameplay")
+            {
+                _gameStateMachine.Enter<GameplayState>();
+            }
+            else
+            {
+                UIController.Instance.ShowMenu<LobbyMenu>();
+            }
         }
 
         private void HandleHostBtnClicked()

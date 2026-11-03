@@ -8,9 +8,10 @@ namespace Scripts.Runtime.Bootstrap
         public int Order { get; }
         public async UniTask InitializeAsync(CancellationToken ct)
         {
-            if (!SteamManager.Initialized)
-                return;
+            //if (!SteamManager.Initialized)
+            //    return;
             
+            await UniTask.Yield();
         }
     }
 }

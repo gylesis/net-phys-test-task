@@ -5,6 +5,7 @@ using Scripts.Runtime.Core.States;
 using Scripts.Runtime.Utils;
 using TMPro;
 using UniRx;
+using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
 using VContainer;
@@ -61,8 +62,12 @@ namespace Scripts.Runtime.UI
         
         private void HandleStartBtnClicked()
         {
-            UIController.Instance.HideMenu<LobbyMenu>();
-            _gameStateMachine.Enter<LoadGameplayState>();
+            ConnectionManager.Instance.StartGameFromLobby();
+        }
+
+        private void UpdateGameState()
+        {
+            
         }
         
     }

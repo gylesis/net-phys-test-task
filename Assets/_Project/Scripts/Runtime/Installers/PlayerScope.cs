@@ -1,4 +1,5 @@
-﻿using VContainer;
+using Scripts.Runtime.Core.PlayerLogic;
+using VContainer;
 using VContainer.Unity;
 
 namespace Scripts.Runtime.Installers
@@ -8,8 +9,8 @@ namespace Scripts.Runtime.Installers
         protected override void Configure(IContainerBuilder builder)
         {
             base.Configure(builder);
-            
-            
+
+            builder.Register<InteractionSystem>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
         }
     }
 }

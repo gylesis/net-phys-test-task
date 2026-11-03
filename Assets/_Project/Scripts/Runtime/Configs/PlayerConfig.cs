@@ -15,22 +15,37 @@ namespace Scripts.Runtime.Configs
         [SerializeField] private float _jumpVelocity = 5f;
         [SerializeField] private float _gravity = -18f;
         [SerializeField] private float _groundStickVelocity = 1f;
-
+        [SerializeField] private float _rotationSpeed = 10;
+        
         [Header("Camera")]
         [SerializeField] private float _lookSensitivity = 0.15f;
         [SerializeField] private float _minPitch = -40f;
         [SerializeField] private float _maxPitch = 70f;
         [SerializeField] private Vector3 _cameraOffset = new Vector3(0f, 2f, -4f);
 
+        [Header("Interaction")]
+        [SerializeField] private float _interactionRadius = 2.5f;
+        [SerializeField] private float _itemSpring = 150f;
+        [SerializeField] private float _itemDamping = 28f;
+        [SerializeField] private float _itemThrowForce = 8f;
+        [SerializeField] private float _itemCompensateVelocityModifier = 1.3f;
+
         [Header("Input")]
         [SerializeField] private BetterActionReference _move;
         [SerializeField] private BetterActionReference _look;
         [SerializeField] private BetterActionReference _jump;
         [SerializeField] private BetterActionReference _sprint;
+        [SerializeField] private BetterActionReference _interact;
+        [SerializeField] private BetterActionReference _throw;
+        [SerializeField] private BetterActionReference _deleteItem;
+        [SerializeField] private BetterActionReference _pause;
 
         public PlayerController PlayerPrefab => _playerPrefab;
         public float MoveSpeed => _moveSpeed;
+        
+        public float ItemCompensateVelocityModifier => _itemCompensateVelocityModifier;
 
+        public float RotationSpeed => _rotationSpeed;
         public float SprintMultiplier => _sprintMultiplier;
 
         public float JumpVelocity => _jumpVelocity;
@@ -47,11 +62,21 @@ namespace Scripts.Runtime.Configs
 
         public Vector3 CameraOffset => _cameraOffset;
 
+        public float InteractionRadius => _interactionRadius;
+
+        public float ItemSpring => _itemSpring;
+
+        public float ItemDamping => _itemDamping;
+
+        public float ItemThrowForce => _itemThrowForce;
+
         public BetterActionReference Move => _move;
         public BetterActionReference Look => _look;
-
         public BetterActionReference Jump => _jump;
-
         public BetterActionReference Sprint => _sprint;
+        public BetterActionReference Interact => _interact;
+        public BetterActionReference Throw => _throw;
+        public BetterActionReference DeleteItem => _deleteItem;
+        public BetterActionReference Pause => _pause;
     }
 }

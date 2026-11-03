@@ -1,10 +1,13 @@
 ﻿using System;
 using Cysharp.Threading.Tasks;
 using Scripts.Runtime.Configs;
+using Scripts.Runtime.Core.States;
+using Scripts.Runtime.Utils;
 using UniRx;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using VContainer;
 
 namespace Scripts.Runtime.Core.Net
@@ -19,18 +22,22 @@ namespace Scripts.Runtime.Core.Net
         public string DisconnectReason => _networkManager.DisconnectReason;
         public bool IsServer => _networkManager.IsServer;
         
+        public ulong LocalClientId => _networkManager.LocalClientId;
+        
         private UniTaskCompletionSource<bool> _connectCts;
         private GameConfig _gameConfig;
         private NetworkManager _networkManager;
-        
+        private GameStateMachine _gameStateMachine;
+
         private void Awake()
         {
             Instance = this;
         }
 
         [Inject]
-        private void Construct(GameConfig gameConfig)
+        private void Construct(GameConfig gameConfig, GameStateMachine gameStateMachine)
         {
+            _gameStateMachine = gameStateMachine;
             _gameConfig = gameConfig;
         }
 
@@ -60,6 +67,12 @@ namespace Scripts.Runtime.Core.Net
             response.Approved = true;
         }
 
+        public void StartGameFromLobby()
+        {
+            var mainMenuNetController = DiInjecter.Instance.Resolve<MainMenuNetController>();
+            mainMenuNetController.StartLoadGameplayStateRpc();
+        }
+
         public bool StartHost()
         {
             return _networkManager.StartHost();
@@ -80,6 +93,12 @@ namespace Scripts.Runtime.Core.Net
             return result;
         }
 
+        public void LeaveGame()
+        {
+            _networkManager.Shutdown();
+            _gameStateMachine.Enter<LoadMainMenuState>();
+        }
+
         private byte[] BuildPayload()
         {
             return Array.Empty<byte>();
@@ -90,7 +109,7 @@ namespace Scripts.Runtime.Core.Net
             if (_networkManager == null) 
                 _networkManager = Instantiate(_gameConfig.NetworkManagerPrefab);
         }
-        
+
         private void HandleClientConnected(ulong obj)
         {
             _connectCts?.TrySetResult(true);

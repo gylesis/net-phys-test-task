@@ -15,5 +15,7 @@ MonoBehaviour:
   _menusPrefabs:
   - {fileID: 6505938002267297760, guid: 6e09db3ea53e95b4792aca61dc99a85e, type: 3}
   - {fileID: 7233751890638173157, guid: 3aafcefe48028584c8d65c306eef5d36, type: 3}
+  - {fileID: 5332349850635771373, guid: e061f7d921e03bc4d93cda9f3a2bf4a0, type: 3}
+  - {fileID: 2531604537758678586, guid: e0450b13fd2f9154e94a610a75320d49, type: 3}
   _popUpsPrefabs:
   - {fileID: 912693217141732191, guid: 614ca0dd430c19b45919348916858cfd, type: 3}

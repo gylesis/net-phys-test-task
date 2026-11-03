@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Scripts.Runtime.UI;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
 
@@ -8,6 +9,8 @@ namespace Scripts.Runtime.Core.States
     {
         public override void Enter()
         {
+            UIController.Instance.HideAllActiveMenus();
+
             var sceneManager = NetworkManager.Singleton.SceneManager;
             sceneManager.OnLoadEventCompleted += HandleLoadEventCompleted;
 

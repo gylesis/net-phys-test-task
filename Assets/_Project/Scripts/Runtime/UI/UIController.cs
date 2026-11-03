@@ -77,6 +77,12 @@ namespace Scripts.Runtime.UI
             
             return menu as TMenuType;
         }
+
+        public void HideAllActiveMenus()
+        {
+            foreach (var pair in _activeMenus) 
+                pair.Value.Hide();
+        }
         
         public void HideMenu<TMenuType>() where TMenuType : Menu
         {

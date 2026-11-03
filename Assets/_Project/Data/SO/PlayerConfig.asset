@@ -13,15 +13,20 @@ MonoBehaviour:
   m_Name: PlayerConfig
   m_EditorClassIdentifier: Assembly-CSharp::_Project.Scripts.Runtime.Configs.PlayerConfig
   _playerPrefab: {fileID: 2103515093175714241, guid: 66b85627d78bc2847a7ec463f98e3e0c, type: 3}
-  _moveSpeed: 5
+  _moveSpeed: 8
   _sprintMultiplier: 1.6
   _jumpVelocity: 5
   _gravity: -18
   _groundStickVelocity: 1
+  _rotationSpeed: 5
   _lookSensitivity: 0.15
   _minPitch: -40
   _maxPitch: 70
-  _cameraOffset: {x: 0, y: 2, z: -4}
+  _cameraOffset: {x: 0, y: 1.14, z: -7.64}
+  _interactionRadius: 2.5
+  _itemSpring: 40
+  _itemDamping: 12
+  _itemThrowForce: 16
   _move:
     _reference: {fileID: -1680190386980627800, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   _look:
@@ -30,3 +35,11 @@ MonoBehaviour:
     _reference: {fileID: -2099379676528639254, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   _sprint:
     _reference: {fileID: -7471211009204490832, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  _interact:
+    _reference: {fileID: 1781555164194001046, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  _throw:
+    _reference: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  _deleteItem:
+    _reference: {fileID: -8957968334072687933, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  _pause:
+    _reference: {fileID: -2479145673839814250, guid: 052faaac586de48259a63d0c4782560b, type: 3}

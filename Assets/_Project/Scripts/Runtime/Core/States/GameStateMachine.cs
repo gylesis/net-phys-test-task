@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using Scripts.Runtime.FSM;
 
 namespace Scripts.Runtime.Core.States
@@ -13,15 +11,6 @@ namespace Scripts.Runtime.Core.States
         {
             Get<TStateType>().Machine = this;
             base.Enter<TStateType>();
-        }
-
-        public new void Enter(Type stateType)
-        {
-            var state = AllStates.FirstOrDefault(s => s.GetType() == stateType);
-            if (state != null)
-                state.Machine = this;
-
-            base.Enter(stateType);
         }
     }
 }
