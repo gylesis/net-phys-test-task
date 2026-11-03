@@ -7,7 +7,7 @@ namespace Scripts.Runtime.Configs
     public class GameConfig : ScriptableObject
     {
         [Header("Session")]
-        [Min(2)] [SerializeField] private int _maxPlayers = 4;
+        [SerializeField, Range(1, 4)] private int _maxPlayers = 4;
         [SerializeField] private NetworkManager _networkManagerPrefab;
         
         [Header("Domain configs")]

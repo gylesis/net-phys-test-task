@@ -5,6 +5,7 @@ using Scripts.Runtime.Core.States;
 using Scripts.Runtime.Utils;
 using TMPro;
 using UniRx;
+using Unity.VisualScripting;
 using UnityEngine;
 using VContainer;
 
@@ -26,8 +27,6 @@ namespace Scripts.Runtime.UI
 
             ConnectionManager.Instance.ClientConnected.Subscribe(HandleClientConnected).AddTo(destroyCancellationToken);
             ConnectionManager.Instance.ClientDisconnected.Subscribe(HandleClientDisconnected).AddTo(destroyCancellationToken);
-            
-            UpdatePlayersCount();
         }
         
         [Inject]
@@ -35,6 +34,14 @@ namespace Scripts.Runtime.UI
         {
             _gameConfig = gameConfig;
             _gameStateMachine = gameStateMachine;
+        }
+
+        public override void Show()
+        {
+            UpdatePlayersCount();
+            _startGameBtn.gameObject.SetActive(ConnectionManager.Instance.IsServer);
+            
+            base.Show();
         }
 
         private void UpdatePlayersCount()

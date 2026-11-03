@@ -8,7 +8,9 @@ namespace Scripts.Runtime.Configs
     public class UIConfig : ScriptableObject
     {
         [SerializeField] private List<Menu> _menusPrefabs;
+        [SerializeField] private List<PopUp> _popUpsPrefabs;
 
+        public List<PopUp> PopUpsPrefabs => _popUpsPrefabs;
         public List<Menu> MenusPrefabs => _menusPrefabs;
     }
 }

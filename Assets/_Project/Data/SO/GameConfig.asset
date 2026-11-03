@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 33e8a87e17d3e074e946cc9026a7886c, type: 3}
   m_Name: GameConfig
   m_EditorClassIdentifier: Assembly-CSharp::_Project.Scripts.Runtime.Configs.GameConfig
-  _maxPlayers: 4
+  _maxPlayers: 1
   _networkManagerPrefab: {fileID: 4617674279517171865, guid: a15da32b98279b94bab43964ae532209, type: 3}
   _playerConfig: {fileID: 11400000, guid: 7a88dcb7e36d9a84faa72913aec3ad35, type: 2}
   _uiConfig: {fileID: 11400000, guid: 2f34b40b5fdffb2468c20f6eb48e1a84, type: 2}

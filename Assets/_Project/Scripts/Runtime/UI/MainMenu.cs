@@ -16,8 +16,6 @@ namespace Scripts.Runtime.UI
         [SerializeField] private TMP_InputField _ipInput;
         [SerializeField] private TMP_InputField _portInput;
         
-        private UniTaskCompletionSource<bool> _connectCts;
-        
         protected override void Awake()
         {
             base.Awake();
@@ -37,43 +35,19 @@ namespace Scripts.Runtime.UI
                 return;
             
             DisableCanvasGroup();
-            _connectCts = new UniTaskCompletionSource<bool>();
             
-            NetworkManager.Singleton.OnClientConnectedCallback += HandleClientConnected;
-            NetworkManager.Singleton.OnClientDisconnectCallback += HandleClientDisconnected;
+            var started = await ConnectionManager.Instance.StartClient(_ipInput.text, port);
 
-            var started = ConnectionManager.Instance.StartClient(_ipInput.text, port);
-
+            EnableCanvasGroup();
+            
             if (!started)
             {
-                Debug.LogError($"Some error happened");
-                return;
-            }
-            
-            var connectCtsTask = await _connectCts.Task;
-            EnableCanvasGroup();
-
-            if (!connectCtsTask)
-            {
-                Debug.LogError($"Error connecting to the server");
+                UIController.Instance.ShowInfoPopUp(Constants.PopUps.ErrorTitle, $"Error connecting to the server: {ConnectionManager.Instance.DisconnectReason}");
                 return;
             }
 
             UIController.Instance.HideMenu<MainMenu>();
-        }
-
-        private void HandleClientConnected(ulong playerId)
-        {
-            _connectCts.TrySetResult(true);
-            NetworkManager.Singleton.OnClientConnectedCallback -= HandleClientConnected;
-            NetworkManager.Singleton.OnClientDisconnectCallback -= HandleClientDisconnected;
-        }
-
-        private void HandleClientDisconnected(ulong playerId)
-        {
-            _connectCts.TrySetResult(false);
-            NetworkManager.Singleton.OnClientConnectedCallback -= HandleClientConnected;
-            NetworkManager.Singleton.OnClientDisconnectCallback -= HandleClientDisconnected;
+            UIController.Instance.ShowMenu<LobbyMenu>();
         }
 
         private void HandleHostBtnClicked()
@@ -90,8 +64,7 @@ namespace Scripts.Runtime.UI
 
         private void OnDestroy()
         {
-            NetworkManager.Singleton.OnClientConnectedCallback -= HandleClientConnected;
-            NetworkManager.Singleton.OnClientDisconnectCallback -= HandleClientDisconnected;
+           
         }
     }
 }
