@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e544c03607b4145a98d4e9090e24669, type: 3}
+  m_Name: UIConfig
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Runtime.Configs.UIConfig
+  _menusPrefabs:
+  - {fileID: 6505938002267297760, guid: 6e09db3ea53e95b4792aca61dc99a85e, type: 3}
+  - {fileID: 7233751890638173157, guid: 3aafcefe48028584c8d65c306eef5d36, type: 3}

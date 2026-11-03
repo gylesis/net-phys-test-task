@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7c170e61259c504d9d4c01063c090f3, type: 3}
+  m_Name: PlayerConfig
+  m_EditorClassIdentifier: Assembly-CSharp::_Project.Scripts.Runtime.Configs.PlayerConfig
+  _playerPrefab: {fileID: 2103515093175714241, guid: 66b85627d78bc2847a7ec463f98e3e0c, type: 3}
+  _moveSpeed: 5
+  _sprintMultiplier: 1.6
+  _jumpVelocity: 5
+  _gravity: -18
+  _groundStickVelocity: 1
+  _lookSensitivity: 0.15
+  _minPitch: -40
+  _maxPitch: 70
+  _cameraOffset: {x: 0, y: 2, z: -4}
+  _move:
+    _reference: {fileID: -1680190386980627800, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  _look:
+    _reference: {fileID: -5630151704836100654, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  _jump:
+    _reference: {fileID: -2099379676528639254, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  _sprint:
+    _reference: {fileID: -7471211009204490832, guid: 052faaac586de48259a63d0c4782560b, type: 3}
