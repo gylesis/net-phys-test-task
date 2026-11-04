@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Scripts.Runtime.Bootstrap;
+using Scripts.Runtime.UI;
 using UnityEngine;
 
 namespace Scripts.Runtime.Core.States
@@ -16,6 +17,7 @@ namespace Scripts.Runtime.Core.States
 
         public override void Enter()
         {
+            Curtains.Instance.ShowCurtains();
             Load().Forget();
         }
 

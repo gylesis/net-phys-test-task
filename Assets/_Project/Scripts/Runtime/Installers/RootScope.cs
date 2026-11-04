@@ -3,6 +3,7 @@ using Scripts.Runtime.Configs;
 using Scripts.Runtime.Core;
 using Scripts.Runtime.Core.States;
 using Scripts.Runtime.Services;
+using Scripts.Runtime.UI;
 using Scripts.Runtime.Utils;
 using UnityEngine;
 using VContainer;
@@ -14,10 +15,12 @@ namespace Scripts.Runtime.Installers
     {
         [SerializeField] private GameConfig _gameConfig;
         [SerializeField] private SceneLoader _sceneLoader;
+        [SerializeField] private Curtains _curtains;
         
         protected override void Configure(IContainerBuilder builder)
         {
             builder.RegisterInstance(_gameConfig);
+            builder.RegisterInstance(_curtains);
 
             builder.Register<InputService>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
             builder.Register<DiInjecter>(Lifetime.Singleton).WithParameter(this).AsImplementedInterfaces().AsSelf();

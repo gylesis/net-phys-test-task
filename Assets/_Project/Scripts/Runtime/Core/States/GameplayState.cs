@@ -11,6 +11,7 @@ namespace Scripts.Runtime.Core.States
 
         public override void Enter()
         {
+            Curtains.Instance.HideCurtains();
             UIController.Instance.ShowMenu<GameplayHUDMenu>();
 
             _playerSpawner = DiInjecter.Instance.Resolve<PlayerSpawner>();

@@ -9,6 +9,7 @@ namespace Scripts.Runtime.Core.States
     {
         public override void Enter()
         {
+            Curtains.Instance.ShowCurtains();
             UIController.Instance.HideAllActiveMenus();
 
             var sceneManager = NetworkManager.Singleton.SceneManager;
