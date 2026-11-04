@@ -48,9 +48,19 @@ namespace Scripts.Runtime.Core.Net
             _networkManager.OnClientConnectedCallback += HandleClientConnected;
             _networkManager.OnClientDisconnectCallback += HandleClientDisconnected;
             
+            _networkManager.OnConnectionEvent += HandleConnectionEvent;
+            
             _networkManager.NetworkConfig.ConnectionApproval = true;
 
             _networkManager.ConnectionApprovalCallback += HandleConnectApprovalCheck;
+        }
+
+        private void HandleConnectionEvent(NetworkManager networkManager, ConnectionEventData eventData)
+        {
+            if (!networkManager.IsServer && eventData.EventType == ConnectionEvent.ClientDisconnected)
+            {
+                LeaveGame();
+            }
         }
 
         private void HandleConnectApprovalCheck(NetworkManager.ConnectionApprovalRequest request, NetworkManager.ConnectionApprovalResponse response)
