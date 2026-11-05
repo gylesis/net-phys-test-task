@@ -1,17 +1,18 @@
 {
   "dependencies": {
+    "com.community.netcode.transport.facepunch": {
+      "version": "https://github.com/Unity-Technologies/multiplayer-community-contributions.git?path=/Transports/com.community.netcode.transport.facepunch",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "0fab638470379ace12b0149dfb41c043d23dbce5"
+    },
     "com.cysharp.unitask": {
       "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.5.10",
       "depth": 0,
       "source": "git",
       "dependencies": {},
       "hash": "7c0f199fe0d3fc528024488ccd671e6c7b27745b"
-    },
-    "com.rlabrecque.steamworks.net": {
-      "version": "file:com.rlabrecque.steamworks.net",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {}
     },
     "com.unity.ai.navigation": {
       "version": "2.0.12",

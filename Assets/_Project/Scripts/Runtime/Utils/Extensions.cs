@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Steamworks;
 using Random = UnityEngine.Random;
 
 namespace Scripts.Runtime.Utils
@@ -48,13 +47,6 @@ namespace Scripts.Runtime.Utils
 
             return (T)values.GetValue(Random.Range(exceptFirst ? 1 : 0, length));
         }
-
-#if !DISABLESTEAMWORKS
-        public static CSteamID ToSteamID(this ulong id)
-        {
-            return new CSteamID(id);
-        }
-#endif
 
     }
 }
