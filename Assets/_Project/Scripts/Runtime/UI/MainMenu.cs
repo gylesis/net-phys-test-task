@@ -11,6 +11,7 @@ using VContainer;
 
 namespace Scripts.Runtime.UI
 {
+    [RequireComponent(typeof(AutoInjecter))]
     public class MainMenu : Menu
     {
         [SerializeField] private DefaultTextReactiveButton _hostBtn;
@@ -18,6 +19,7 @@ namespace Scripts.Runtime.UI
 
         [SerializeField] private TMP_InputField _ipInput;
         [SerializeField] private TMP_InputField _portInput;
+        
         private GameStateMachine _gameStateMachine;
 
         protected override void Awake()
@@ -78,11 +80,6 @@ namespace Scripts.Runtime.UI
                 UIController.Instance.ShowMenu<LobbyMenu>();
             }
             
-        }
-
-        private void OnDestroy()
-        {
-           
         }
     }
 }

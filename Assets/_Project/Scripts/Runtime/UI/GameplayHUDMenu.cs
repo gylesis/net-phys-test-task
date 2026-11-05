@@ -2,7 +2,6 @@
 {
     public class GameplayHUDMenu : Menu
     {
-        
-        
+        // some inventory icons
     }
 }

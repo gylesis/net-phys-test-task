@@ -1,6 +1,6 @@
-using Scripts.Runtime.Bootstrap;
 using Scripts.Runtime.Configs;
 using Scripts.Runtime.Core;
+using Scripts.Runtime.Core.Modules;
 using Scripts.Runtime.Core.States;
 using Scripts.Runtime.Services;
 using Scripts.Runtime.UI;
@@ -22,6 +22,8 @@ namespace Scripts.Runtime.Installers
             builder.RegisterInstance(_gameConfig);
             builder.RegisterInstance(_curtains);
 
+            builder.Register<ModulesFacade>(Lifetime.Singleton);
+            
             builder.Register<InputService>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
             builder.Register<DiInjecter>(Lifetime.Singleton).WithParameter(this).AsImplementedInterfaces().AsSelf();
 

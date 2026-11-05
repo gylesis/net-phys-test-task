@@ -19,3 +19,4 @@ MonoBehaviour:
   - {fileID: 2531604537758678586, guid: e0450b13fd2f9154e94a610a75320d49, type: 3}
   _popUpsPrefabs:
   - {fileID: 912693217141732191, guid: 614ca0dd430c19b45919348916858cfd, type: 3}
+  _sessionPlayerViewPrefab: {fileID: 7211938095726001362, guid: 73018d8f1454d8a4fa9d66a8d207ac4c, type: 3}

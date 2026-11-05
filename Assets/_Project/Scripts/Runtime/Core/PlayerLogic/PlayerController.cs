@@ -22,20 +22,18 @@ namespace Scripts.Runtime.Core.PlayerLogic
         [SerializeField] private Transform _itemDragPoint;
 
         public NetworkVariable<bool> IsPaused { get; private set; } = new NetworkVariable<bool>(false, writePerm: NetworkVariableWritePermission.Owner);
-        
         public NetworkVariable<NetworkBehaviourReference> HoldingItem { get; set; } = new NetworkVariable<NetworkBehaviourReference>();
-        
         public bool IsHoldingItem => HoldingItem.Value.TryGet(out _);
         
-        private PlayerConfig _config;
-        private InputService _input;
-        private CameraController _cameraController;
         private float _verticalVelocity;
-        private InteractionSystem _interactionSystem;
-
         private PhysItem _heldItem;
         private Rigidbody _heldBody;
         private Vector3 _grabLocalPoint;
+
+        private PlayerConfig _config;
+        private InputService _input;
+        private CameraController _cameraController;
+        private InteractionSystem _interactionSystem;
 
         [Inject]
         private void Construct(GameConfig config, InputService input, CameraController cameraController, InteractionSystem interactionSystem)

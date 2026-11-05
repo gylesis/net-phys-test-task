@@ -1,7 +1,7 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 
-namespace Scripts.Runtime.Bootstrap
+namespace Scripts.Runtime.Core.Modules
 {
     public interface IBootstrapModule
     {

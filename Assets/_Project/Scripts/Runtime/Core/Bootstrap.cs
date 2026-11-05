@@ -3,7 +3,7 @@ using Scripts.Runtime.Utils;
 using UnityEngine;
 using VContainer;
 
-namespace Scripts.Runtime.Bootstrap
+namespace Scripts.Runtime.Core
 {
     public class Bootstrap : MonoBehaviour
     {

@@ -9,7 +9,9 @@ namespace Scripts.Runtime.Configs
     {
         [SerializeField] private List<Menu> _menusPrefabs;
         [SerializeField] private List<PopUp> _popUpsPrefabs;
+        [SerializeField] private SessionPlayerView _sessionPlayerViewPrefab;
 
+        public SessionPlayerView SessionPlayerViewPrefab => _sessionPlayerViewPrefab;
         public List<PopUp> PopUpsPrefabs => _popUpsPrefabs;
         public List<Menu> MenusPrefabs => _menusPrefabs;
     }

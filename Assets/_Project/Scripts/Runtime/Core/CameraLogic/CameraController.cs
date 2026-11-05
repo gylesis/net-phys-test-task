@@ -10,17 +10,17 @@ namespace Scripts.Runtime.Core.CameraLogic
     public class CameraController : MonoBehaviour
     {
         [SerializeField] private Transform _camParent;
-        
-        private PlayerConfig _config;
-        private InputService _input;
 
+        public float Yaw => _yaw;
+        
         private Transform _body;
         private float _yaw;
         private float _pitch;
         private PlayerController _attachedPlayer;
 
-        public float Yaw => _yaw;
-
+        private PlayerConfig _config;
+        private InputService _input;
+        
         [Inject]
         private void Construct(GameConfig config, InputService input)
         {

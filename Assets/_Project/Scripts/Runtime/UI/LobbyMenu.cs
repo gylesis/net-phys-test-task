@@ -64,11 +64,6 @@ namespace Scripts.Runtime.UI
         {
             ConnectionManager.Instance.StartGameFromLobby();
         }
-
-        private void UpdateGameState()
-        {
-            
-        }
         
     }
 }

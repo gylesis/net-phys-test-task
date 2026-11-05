@@ -9,8 +9,9 @@ namespace Scripts.Runtime.Core.PhysItems
         [SerializeField] private Rigidbody _rigidbody;
         [SerializeField] private Collider _collider;
         
-        public NetworkVariable<bool> IsHeld = new NetworkVariable<bool>(false);
         public Rigidbody Body => _rigidbody;
         public Collider Collider => _collider;
+        
+        public NetworkVariable<bool> IsHeld = new NetworkVariable<bool>(false);
     }
 }

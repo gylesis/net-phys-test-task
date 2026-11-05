@@ -7,8 +7,8 @@ namespace Scripts.Runtime.Core.PlayerLogic
 {
     public class PlayerSpawner
     {
-        private GameplaySceneRefs _gameplaySceneRefs;
-        private GameConfig _gameConfig;
+        private readonly GameplaySceneRefs _gameplaySceneRefs;
+        private readonly GameConfig _gameConfig;
 
         public PlayerSpawner(GameplaySceneRefs gameplaySceneRefs, GameConfig gameConfig)
         {

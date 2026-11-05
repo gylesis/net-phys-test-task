@@ -6,7 +6,6 @@ using Scripts.Runtime.Configs;
 using UniRx;
 using UnityEngine;
 using VContainer;
-using Object = UnityEngine.Object;
 
 namespace Scripts.Runtime.UI
 {
@@ -18,13 +17,12 @@ namespace Scripts.Runtime.UI
         public static UIController Instance { get; private set; }
         
         private Dictionary<Type, Menu> _activeMenus = new Dictionary<Type, Menu>();
-
-        private GameConfig _gameConfig;
         private Dictionary<Type, Menu> _menusPrefabs;
-
         private InformPopUp _informPopUp;
         private Action _closeInformPopUpCallback;
 
+        private GameConfig _gameConfig;
+        
         private void Awake()
         {
             Instance = this;
@@ -59,11 +57,13 @@ namespace Scripts.Runtime.UI
             }
             
             _informPopUp.SetDescription(title, description);
+            _informPopUp.Show();
         }
 
         private void HandleInformPopUpClosed()
         {
             _closeInformPopUpCallback?.Invoke();
+            _informPopUp.Hide();
         }
 
         public TMenuType ShowMenu<TMenuType>() where TMenuType : Menu
@@ -92,6 +92,32 @@ namespace Scripts.Runtime.UI
                 return;
             
             menu.Hide();
+        }
+
+        public void FlushGameplayMenus()
+        {
+            List<Type> toRemove = new List<Type>();
+
+            foreach (var pair in _activeMenus)
+            {
+                if (IsGameplayMenu(pair.Key))
+                    toRemove.Add(pair.Key);
+            }
+
+            foreach (var menuType in toRemove)
+            {
+                if (!_activeMenus.TryGetValue(menuType, out var menu))
+                    continue;
+
+                _activeMenus.Remove(menuType);
+                menu.Hide();
+                Destroy(menu.gameObject);
+            }
+
+            bool IsGameplayMenu(Type menuType)
+            {
+                return menuType == typeof(GameplayPauseMenu) || menuType == typeof(GameplayHUDMenu);
+            }
         }
 
         private TMenuType SpawnMenu<TMenuType>() where TMenuType : Menu

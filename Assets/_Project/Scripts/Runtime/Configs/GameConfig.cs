@@ -1,3 +1,4 @@
+using Scripts.Runtime.Core;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -9,6 +10,7 @@ namespace Scripts.Runtime.Configs
         [Header("Session")]
         [SerializeField, Range(1, 4)] private int _maxPlayers = 4;
         [SerializeField] private NetworkManager _networkManagerPrefab;
+        [SerializeField] private SessionInfo _sessionInfoPrefab;
         
         [Header("Domain configs")]
         [SerializeField] private PlayerConfig _playerConfig;
@@ -19,6 +21,7 @@ namespace Scripts.Runtime.Configs
         public UIConfig UIConfig => _uiConfig;
         public PlayerConfig PlayerConfig => _playerConfig;
 
+        public SessionInfo SessionInfoPrefab => _sessionInfoPrefab;
         public NetworkManager NetworkManagerPrefab => _networkManagerPrefab;
     }
 }

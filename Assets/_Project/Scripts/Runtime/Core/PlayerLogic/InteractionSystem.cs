@@ -15,20 +15,17 @@ namespace Scripts.Runtime.Core.PlayerLogic
     public class InteractionSystem : ITickable, IInitializable, IDisposable
     {
         private static readonly Collider[] _hits = new Collider[16];
-
-        private readonly PlayerSpawner _spawner;
+        public IReadOnlyReactiveProperty<PhysItem> CurrentNearbyItem => _currentNearbyItem;
+        
         private readonly PlayerConfig _config;
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
         private readonly ReactiveProperty<PhysItem> _currentNearbyItem = new ReactiveProperty<PhysItem>(null);
 
         private PlayerController _playerController;
 
-        /// <summary>The item the local player could interact with right now (null if none).</summary>
-        public IReadOnlyReactiveProperty<PhysItem> CurrentNearbyItem => _currentNearbyItem;
 
-        public InteractionSystem(PlayerSpawner spawner, GameConfig config)
+        public InteractionSystem(GameConfig config)
         {
-            _spawner = spawner;
             _config = config.PlayerConfig;
         }
 
@@ -47,8 +44,6 @@ namespace Scripts.Runtime.Core.PlayerLogic
             if (_playerController == null)
                 return;
 
-            
-            
             var nearest = FindNearestItem();
             if (_currentNearbyItem.Value != nearest)
                 _currentNearbyItem.Value = nearest;

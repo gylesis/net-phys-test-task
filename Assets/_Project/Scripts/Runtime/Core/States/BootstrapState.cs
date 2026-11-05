@@ -1,18 +1,16 @@
-using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
-using Scripts.Runtime.Bootstrap;
+using Scripts.Runtime.Core.Modules;
 using Scripts.Runtime.UI;
-using UnityEngine;
 
 namespace Scripts.Runtime.Core.States
 {
     public class BootstrapState : GameState
     {
-        private IReadOnlyList<IBootstrapModule> _bootstrapModules;
+        private readonly ModulesFacade _modulesFacade;
 
-        public BootstrapState(IReadOnlyList<IBootstrapModule> bootstrapModules)
+        public BootstrapState(ModulesFacade modulesFacade)
         {
-            _bootstrapModules = bootstrapModules;
+            _modulesFacade = modulesFacade;
         }
 
         public override void Enter()
@@ -23,11 +21,7 @@ namespace Scripts.Runtime.Core.States
 
         private async UniTask Load()
         {
-            foreach (var bootstrapModule in _bootstrapModules)
-            {
-                await bootstrapModule.InitializeAsync(Application.exitCancellationToken);
-            }
-
+            await _modulesFacade.Load();
             Machine.Enter<LoadMainMenuState>();
         }
 

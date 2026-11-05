@@ -625,12 +625,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31dc6c7fccb44a15b10fb250fd63f030, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Runtime.UI.InformPopUp
+  _canvasGroup: {fileID: 6159558815923346207}
   _descriptionText: {fileID: 1826344358144845200}
   _titleText: {fileID: 8677964949651231756}
   _closeBtn: {fileID: 8971848490014164138}
 --- !u!224 &3383067988918883076 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3817457519933142106, guid: 7cd4cf6bd6e0fe149aadf854fb2885d7, type: 3}
+  m_PrefabInstance: {fileID: 1876108828559501150}
+  m_PrefabAsset: {fileID: 0}
+--- !u!225 &6159558815923346207 stripped
+CanvasGroup:
+  m_CorrespondingSourceObject: {fileID: 5724744804709956673, guid: 7cd4cf6bd6e0fe149aadf854fb2885d7, type: 3}
   m_PrefabInstance: {fileID: 1876108828559501150}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &9039519744651047479
