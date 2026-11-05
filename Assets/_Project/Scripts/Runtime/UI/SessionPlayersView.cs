@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Scripts.Runtime.Configs;
 using Scripts.Runtime.Core;
@@ -46,7 +46,7 @@ namespace Scripts.Runtime.UI
             ConnectionManager.KickPlayer(sessionPlayerView.ClientId, "Kicked");
         }
 
-        public void UpdatePlayers(List<PlayerInfo> playerInfos)
+        public void UpdatePlayers(List<PlayerInfo> playerInfos, List<ushort> pings)
         {
             TrySpawnViews();
             _views.ForEach(x => x.gameObject.SetActive(false));
@@ -60,21 +60,18 @@ namespace Scripts.Runtime.UI
                 
                 sessionPlayerView.ClientId = playerInfo.ClientId;
                 sessionPlayerView.SetNickname(playerInfo.Name.Value);
-                sessionPlayerView.SetPing($"{playerInfo.LastPing}");
+                sessionPlayerView.SetPing($"{pings[index]}");
                 
                 sessionPlayerView.gameObject.SetActive(true);
             }
         }
 
-        public void UpdatePing(List<PlayerInfo> playerInfos)
-        {   
-            for (var index = 0; index < playerInfos.Count; index++)
+        public void UpdatePing(List<ushort> pings)
+        {
+            for (var index = 0; index < pings.Count; index++)
             {
-                var playerInfo = playerInfos[index];
                 SessionPlayerView sessionPlayerView = _views[index];
-
-                var playerRtt = playerInfo.LastPing;
-                sessionPlayerView.SetPing($"{playerRtt}");
+                sessionPlayerView.SetPing($"{pings[index]}");
             }
         }
     }

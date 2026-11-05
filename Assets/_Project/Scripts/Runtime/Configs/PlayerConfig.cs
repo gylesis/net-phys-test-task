@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Scripts.Runtime.Core.PlayerLogic;
 using Scripts.Runtime.Utils;
 using UnityEngine;
@@ -40,6 +41,10 @@ namespace Scripts.Runtime.Configs
         [SerializeField] private BetterActionReference _deleteItem;
         [SerializeField] private BetterActionReference _pause;
 
+        [Header("Visuals")] 
+        [SerializeField] private List<PlayerVisualData> _playerVisualDatas;
+
+        public List<PlayerVisualData> PlayerVisualDatas => _playerVisualDatas;
         public PlayerController PlayerPrefab => _playerPrefab;
         public float MoveSpeed => _moveSpeed;
         

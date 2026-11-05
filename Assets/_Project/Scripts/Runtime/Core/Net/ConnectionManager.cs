@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Text;
 using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using Scripts.Runtime.Configs;
@@ -23,6 +24,8 @@ namespace Scripts.Runtime.Core.Net
         public Subject<ulong> ClientDisconnected { get; } = new Subject<ulong>();
 
         public int PlayersCount => _networkManager != null ? _networkManager.ConnectedClients.Count : 0;
+
+        public IReadOnlyDictionary<ulong, NetworkClient> ConnectedPlayers => _networkManager.ConnectedClients;
         public string DisconnectReason => _networkManager.DisconnectReason;
         public bool IsServer => _networkManager.IsServer;
         public ulong ServerId => NetworkManager.ServerClientId;

@@ -20,11 +20,12 @@ namespace Scripts.Runtime.Core.PlayerLogic
         
         [SerializeField] private CharacterController _characterController;
         [SerializeField] private Transform _itemDragPoint;
-
+        [SerializeField] private PlayerVisuals _playerVisuals;
+        
         public NetworkVariable<bool> IsPaused { get; private set; } = new NetworkVariable<bool>(false, writePerm: NetworkVariableWritePermission.Owner);
         public NetworkVariable<NetworkBehaviourReference> HoldingItem { get; set; } = new NetworkVariable<NetworkBehaviourReference>();
         public bool IsHoldingItem => HoldingItem.Value.TryGet(out _);
-        
+
         private float _verticalVelocity;
         private PhysItem _heldItem;
         private Rigidbody _heldBody;

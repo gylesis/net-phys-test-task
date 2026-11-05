@@ -1,4 +1,4 @@
-﻿using Scripts.Runtime.Configs;
+using Scripts.Runtime.Configs;
 using Scripts.Runtime.Utils;
 using Unity.Netcode;
 using UnityEngine;

@@ -1,4 +1,7 @@
 using System;
+using Scripts.Runtime.Configs;
+using Scripts.Runtime.Core.Net;
+using Scripts.Runtime.Core.PlayerLogic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -6,12 +9,13 @@ namespace Scripts.Runtime.Core
 {
     public class SessionInfo : NetworkBehaviour
     {
-        public static SessionInfo Instance { get; private set; }
-        
         public const float PingReportInterval = 1f;
+        public static SessionInfo Instance { get; private set; }
         public bool AmIRegisteredMyself { get; set; }
         public NetworkList<PlayerInfo> PlayersInfo = new();
-
+        public NetworkList<ushort> PlayersPing = new();
+        public NetworkList<NetworkObjectReference> PlayerControlledObjects = new();
+        
         private float _nextPingReport;
         
         public override void OnNetworkSpawn()
@@ -22,12 +26,12 @@ namespace Scripts.Runtime.Core
 
         private void Update()
         {
-            ReportPing();
+            ReportPings();
         }
 
-        private void ReportPing()
+        private void ReportPings()
         {
-            if (!IsSpawned || !IsClient || IsServer)
+            if (!IsSpawned || !IsServer)
                 return;
             
             _nextPingReport -= Time.unscaledDeltaTime;
@@ -35,9 +39,20 @@ namespace Scripts.Runtime.Core
                 return;
             _nextPingReport = PingReportInterval;
 
+            if (PlayersPing.Count != PlayersInfo.Count)
+                return;
+
             var transport = NetworkManager.NetworkConfig.NetworkTransport;
-            ulong rtt = transport.GetCurrentRtt(NetworkManager.ServerClientId);
-            ReportPingServerRpc((ushort)Math.Min(rtt, ushort.MaxValue));
+            for (var index = 0; index < PlayersInfo.Count; index++)
+            {
+                var clientId = PlayersInfo[index].ClientId;
+                ushort pingMs = 0;
+
+                if (clientId != NetworkManager.ServerClientId)
+                    pingMs = (ushort)Math.Min(transport.GetCurrentRtt(clientId), ushort.MaxValue);
+
+                PlayersPing[index] = pingMs;
+            }
         }
 
         public bool IsSteamUserAlreadyExist(ulong steamId)
@@ -49,25 +64,32 @@ namespace Scripts.Runtime.Core
             }
             return false;
         }
-        
-        [Rpc(SendTo.Server)]
-        private void ReportPingServerRpc(ushort pingMs, RpcParams rpcParams = default)
-        {
-            var clientId = rpcParams.Receive.SenderClientId;
 
-            for (var index = 0; index < PlayersInfo.Count; index++)
+        public void AddPlayerObject(PlayerController playerController)
+        {
+            if (!ConnectionManager.Instance.IsServer)
+                return;
+            
+            PlayerControlledObjects.Add(playerController.NetworkObject);
+        }
+        
+        public void RemovePlayerObject(ulong clientId)
+        {
+            if (!ConnectionManager.Instance.IsServer)
+                return;
+            
+            for (var i = 0; i < PlayerControlledObjects.Count; i++)
             {
-                var playerInfo = PlayersInfo[index];
-                if (playerInfo.ClientId == clientId)
+                var playerController = PlayerControlledObjects[i];
+
+                if (playerController.TryGet(out var networkObject) && networkObject.OwnerClientId == clientId)
                 {
-                    playerInfo.LastPing = pingMs;
-                    
-                    PlayersInfo.Set(index, playerInfo);
+                    PlayerControlledObjects.RemoveAt(i);
                     return;
                 }
             }
         }
-
+        
         [Rpc(SendTo.Server)]
         public void RegisterMyselftDataRpc(ulong steamId, string name, RpcParams rpcParams = default)
         {
@@ -78,22 +100,46 @@ namespace Scripts.Runtime.Core
             playerInfo.Name = name;
             
             PlayersInfo.Add(playerInfo);
+            PlayersPing.Add(0);
         }
 
-        public void HandleClientDisconnect(ulong clientId)
+        [Rpc(SendTo.Server)]
+        public void ChangeSkinRpc(SkinType newSkinType, RpcParams rpcParams = default)
         {
-            PlayerInfo targetPlayer = default;
-            
-            foreach (var playerInfo in PlayersInfo)
+            ChangePlayerInfo(rpcParams.Receive.SenderClientId, info =>
             {
+                info.SkinIndex = (byte)newSkinType; 
+                return info;
+            });
+        }
+
+        private void ChangePlayerInfo(ulong clientId, Func<PlayerInfo, PlayerInfo> change)
+        {
+            for (var index = 0; index < PlayersInfo.Count; index++)
+            {
+                var playerInfo = PlayersInfo[index];
                 if (playerInfo.ClientId == clientId)
                 {
-                    targetPlayer = playerInfo;
+                    PlayersInfo.Set(index, change(playerInfo));
+                    return;
                 }
             }
+        }
+        
+        public void HandleClientDisconnect(ulong clientId)
+        {
+            for (var index = 0; index < PlayersInfo.Count; index++)
+            {
+                if (PlayersInfo[index].ClientId == clientId)
+                {
+                    PlayersInfo.RemoveAt(index);
 
-            if (targetPlayer.ClientId != 0) 
-                PlayersInfo.Remove(targetPlayer);
+                    if (index < PlayersPing.Count)
+                        PlayersPing.RemoveAt(index);
+
+                    return;
+                }
+            }
         }
 
         public override void OnDestroy()

@@ -9,11 +9,13 @@ namespace Scripts.Runtime.Core
         public ulong ClientId;
         public ulong SteamID;
         public FixedString64Bytes Name;
-        public ushort LastPing;
+        
+        public byte SkinIndex;
+
 
         public bool Equals(PlayerInfo other)
         {
-            return ClientId == other.ClientId && SteamID == other.SteamID && Name.Equals(other.Name) && LastPing == other.LastPing;
+            return ClientId == other.ClientId && SteamID == other.SteamID && Name.Equals(other.Name) && SkinIndex == other.SkinIndex;
         }
 
         public override bool Equals(object obj)
@@ -23,7 +25,7 @@ namespace Scripts.Runtime.Core
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(ClientId, SteamID, Name, LastPing);
+            return HashCode.Combine(ClientId, SteamID, Name, SkinIndex);
         }
     }
     

@@ -75,7 +75,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2486954204
+  GlobalObjectIdHash: 1856746090
   InScenePlacedSourceGlobalObjectIdHash: 0
   m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
@@ -105,6 +105,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   _characterController: {fileID: 7760647590373575822}
   _itemDragPoint: {fileID: 2368018815432445487}
+  _playerVisuals: {fileID: 3133223811847172755}
 --- !u!114 &5934185438084885602
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -388,6 +389,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7364137996662840883}
+  - component: {fileID: 1829588523380553428}
+  - component: {fileID: 3133223811847172755}
   m_Layer: 0
   m_Name: Render
   m_TagString: Untagged
@@ -412,6 +415,31 @@ Transform:
   - {fileID: 8063900328190501540}
   m_Father: {fileID: 1746883156968912389}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1829588523380553428
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8189273604738345586}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 802fc4788bd7401cb86c65df47e44cc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Runtime.Utils.AutoInjecter
+--- !u!114 &3133223811847172755
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8189273604738345586}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccd22626db064b4bb89eb7f7b3577667, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Runtime.Core.PlayerLogic.PlayerVisuals
+  _bodyRenderer: {fileID: 1826311138555978673}
 --- !u!1 &8276437913117587612
 GameObject:
   m_ObjectHideFlags: 0
@@ -457,7 +485,7 @@ GameObject:
   - component: {fileID: 8859014413171661293}
   - component: {fileID: 1826311138555978673}
   m_Layer: 0
-  m_Name: Capsule
+  m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
