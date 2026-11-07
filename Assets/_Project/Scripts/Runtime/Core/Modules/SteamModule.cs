@@ -27,9 +27,7 @@ namespace Scripts.Runtime.Core.Modules
 
         private readonly Dictionary<ulong, string> _resolvedNames = new Dictionary<ulong, string>();
 
-        public ulong CurrentLobbyOwnerId => CurrentLobby.HasValue && CurrentLobby.Value.Owner.Id.IsValid
-            ? CurrentLobby.Value.Owner.Id.Value
-            : Constants.SteamIdNotAvailable;
+        public ulong CurrentLobbyOwnerId => CurrentLobby.HasValue && CurrentLobby.Value.Owner.Id.IsValid ? CurrentLobby.Value.Owner.Id.Value : Constants.SteamIdNotAvailable;
 
         private readonly GameConfig _gameConfig;
         
@@ -247,6 +245,12 @@ namespace Scripts.Runtime.Core.Modules
         }
 
         public string GetMyName() => IsInitialized ? SteamClient.Name : "";
+
+        public void IncrementStat(string statApiName, int amount = 1)
+        {
+            // SteamUserStats.AddStat(statApiName, amount);
+            // SteamUserStats.StoreStats();
+        }
 
         public async UniTask<string> GetSteamNameAsync(ulong steamId, CancellationToken ct = default)
         {

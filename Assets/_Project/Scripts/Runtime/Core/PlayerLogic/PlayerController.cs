@@ -1,5 +1,6 @@
 using Scripts.Runtime.Configs;
 using Scripts.Runtime.Core.PhysItems;
+using Scripts.Runtime.Core.Stats;
 using Scripts.Runtime.Services;
 using Scripts.Runtime.UI;
 using Scripts.Runtime.Utils;
@@ -32,11 +33,14 @@ namespace Scripts.Runtime.Core.PlayerLogic
         private LocalPlayerContext _localPlayerContext;
         private UIController _uiController;
         private GameplaySceneContext _sceneContext;
+        private GameStats _gameStats;
 
         [Inject]
         private void Construct(GameConfig config, InputService input, InteractionSystem interactionSystem,
-            ItemSpawner itemSpawner, LocalPlayerContext localPlayerContext, UIController uiController, GameplaySceneContext sceneContext)
+            ItemSpawner itemSpawner, LocalPlayerContext localPlayerContext, UIController uiController,
+            GameplaySceneContext sceneContext, GameStats gameStats)
         {
+            _gameStats = gameStats;
             _sceneContext = sceneContext;
             _localPlayerContext = localPlayerContext;
             _uiController = uiController;
@@ -101,8 +105,6 @@ namespace Scripts.Runtime.Core.PlayerLogic
 
         public override void OnNetworkDespawn()
         {
-            // The owner may disconnect abruptly (no RPC is guaranteed in that case), so the
-            // server releases the held item directly instead of relying on DropItemRpc.
             if (IsServer && HoldingItem.Value.TryGet(out PhysItem heldItem))
                 ReleaseHeldItem(heldItem);
 
@@ -189,8 +191,9 @@ namespace Scripts.Runtime.Core.PlayerLogic
             
             item.IsHeld.Value = true;
             item.NetworkObject.ChangeOwnership(OwnerClientId);
-            
+
             HoldingItem.Value = item;
+            _gameStats.OnItemGrabbed();
         }
 
         [Rpc(SendTo.Server)]
@@ -201,10 +204,11 @@ namespace Scripts.Runtime.Core.PlayerLogic
 
             ReleaseHeldItem(item);
 
-            // Server becomes the physics authority after RemoveOwnership, so the throw
-            // velocity must be applied here — the client-local value is discarded.
             if (throwVelocity != default)
+            {
                 item.Body.linearVelocity = throwVelocity;
+                _gameStats.OnItemThrown();
+            }
         }
 
         private void ReleaseHeldItem(PhysItem item)
@@ -233,6 +237,7 @@ namespace Scripts.Runtime.Core.PlayerLogic
                                     + transform.forward * _config.ItemSpawnDistance;
 
             _itemSpawner.SpawnItem(_config.PhysItemPrefab, spawnPosition, transform.rotation);
+            _gameStats.OnItemSpawned();
         }
 
         [Rpc(SendTo.Server)]
@@ -243,6 +248,7 @@ namespace Scripts.Runtime.Core.PlayerLogic
 
             item.NetworkObject.Despawn();
             HoldingItem.Value = null;
+            _gameStats.OnItemDeleted();
         }
 
         private void ReleaseItem()
