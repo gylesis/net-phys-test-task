@@ -7,10 +7,19 @@ namespace Scripts.Runtime.Core.States
 {
     public class LoadGameplayState : GameState
     {
+        private readonly UIController _uiController;
+        private readonly Curtains _curtains;
+
+        public LoadGameplayState(UIController uiController, Curtains curtains)
+        {
+            _curtains = curtains;
+            _uiController = uiController;
+        }
+
         public override void Enter()
         {
-            Curtains.Instance.ShowCurtains();
-            UIController.Instance.HideAllActiveMenus();
+            _curtains.ShowCurtains();
+            _uiController.HideAllActiveMenus();
 
             var sceneManager = NetworkManager.Singleton.SceneManager;
             sceneManager.OnLoadEventCompleted += HandleLoadEventCompleted;
@@ -28,8 +37,6 @@ namespace Scripts.Runtime.Core.States
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted -= HandleLoadEventCompleted;
             Machine.Enter<GameplayState>();
         }
-
-        public override void Tick() { }
 
         public override void Exit() { }
     }

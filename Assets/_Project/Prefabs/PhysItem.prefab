@@ -190,7 +190,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Runtime.Core.PhysItems.PhysItem
   ShowTopMostFoldoutHeaderGroup: 1
   _rigidbody: {fileID: 3832492449698420310}
-  _collider: {fileID: 7225453588048202681}
   IsHeld:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0

@@ -23,11 +23,13 @@ MonoBehaviour:
   _minPitch: -40
   _maxPitch: 70
   _cameraOffset: {x: 0, y: 1.14, z: -7.64}
+  _physItemPrefab: {fileID: 9132396531935730317, guid: fa00f7077bda130489a1ea64c9af31a7, type: 3}
   _interactionRadius: 2.5
   _itemSpring: 40
   _itemDamping: 12
   _itemThrowForce: 16
   _itemCompensateVelocityModifier: 1.3
+  _itemSpawnDistance: 1.5
   _move:
     _reference: {fileID: -1680190386980627800, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   _look:
@@ -42,6 +44,8 @@ MonoBehaviour:
     _reference: {fileID: 1120369429361536294, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   _deleteItem:
     _reference: {fileID: -8957968334072687933, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+  _spawn:
+    _reference: {fileID: -4708998282022585866, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   _pause:
     _reference: {fileID: -2479145673839814250, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   _playerVisualDatas:

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using Scripts.Runtime.Configs;
+using Scripts.Runtime.Utils;
 using UniRx;
 using UnityEngine;
 using VContainer;
@@ -13,24 +14,19 @@ namespace Scripts.Runtime.UI
     {
         [SerializeField] private Transform _menusParent;
         [SerializeField] private Transform _popupsParent;
-        
-        public static UIController Instance { get; private set; }
-        
+
         private Dictionary<Type, Menu> _activeMenus = new Dictionary<Type, Menu>();
         private Dictionary<Type, Menu> _menusPrefabs;
         private InformPopUp _informPopUp;
         private Action _closeInformPopUpCallback;
 
         private GameConfig _gameConfig;
-        
-        private void Awake()
-        {
-            Instance = this;
-        }
+        private IDIResolver _diResolver;
 
         [Inject]
-        private void Construct(GameConfig gameConfig)
+        private void Construct(GameConfig gameConfig, IDIResolver idiResolver)
         {
+            _diResolver = idiResolver;
             _gameConfig = gameConfig;
         }
 
@@ -52,7 +48,7 @@ namespace Scripts.Runtime.UI
                     throw new NullReferenceException("InformPopUp prefab not found");
                 }
 
-                _informPopUp = Instantiate(informPopUpPrefab, _popupsParent) as InformPopUp;
+                _informPopUp = _diResolver.Instantiate(informPopUpPrefab, _popupsParent) as InformPopUp;
                 _informPopUp.Closed.Subscribe(unit => HandleInformPopUpClosed()).AddTo(destroyCancellationToken);
             }
             
@@ -127,10 +123,10 @@ namespace Scripts.Runtime.UI
             if (!_menusPrefabs.TryGetValue(menuType, out var menuPrefab))
                 throw new KeyNotFoundException($"No menu prefab found for {menuType}. Ensure you added menu in {nameof(UIConfig)}");
 
-            var menuInstance = Instantiate(menuPrefab, _menusParent) as TMenuType;
+            var menuInstance = _diResolver.Instantiate(menuPrefab, _menusParent);
             _activeMenus.TryAdd(menuType, menuInstance);
-            
-            return menuInstance;
+
+            return menuInstance as TMenuType;
         }
         
     }

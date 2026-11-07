@@ -7,15 +7,17 @@ namespace Scripts.Runtime.Core.States
     public class BootstrapState : GameState
     {
         private readonly ModulesFacade _modulesFacade;
+        private readonly Curtains _curtains;
 
-        public BootstrapState(ModulesFacade modulesFacade)
+        public BootstrapState(ModulesFacade modulesFacade, Curtains curtains)
         {
+            _curtains = curtains;
             _modulesFacade = modulesFacade;
         }
 
         public override void Enter()
         {
-            Curtains.Instance.ShowCurtains();
+            _curtains.ShowCurtains();
             Load().Forget();
         }
 
@@ -24,8 +26,6 @@ namespace Scripts.Runtime.Core.States
             await _modulesFacade.Load();
             Machine.Enter<LoadMainMenuState>();
         }
-
-        public override void Tick() { }
 
         public override void Exit() { }
     }

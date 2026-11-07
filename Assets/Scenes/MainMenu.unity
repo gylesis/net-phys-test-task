@@ -359,10 +359,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scripts.Runtime.Installers.MainMenuInstaller
   parentReference:
-    TypeName: 
+    TypeName: Scripts.Runtime.Installers.RootScope
   autoRun: 1
-  autoInjectGameObjects:
-  - {fileID: 306383343}
   _menuNetController: {fileID: 306383345}
 --- !u!4 &344933248
 Transform:

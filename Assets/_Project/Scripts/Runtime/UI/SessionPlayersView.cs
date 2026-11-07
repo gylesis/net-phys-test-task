@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Scripts.Runtime.Configs;
 using Scripts.Runtime.Core;
+using Scripts.Runtime.Core.Modules;
 using Scripts.Runtime.Core.Net;
 using Scripts.Runtime.Utils;
 using UniRx;
@@ -10,22 +11,24 @@ using VContainer;
 
 namespace Scripts.Runtime.UI
 {
-    [RequireComponent(typeof(AutoInjecter))]
     public class SessionPlayersView : MonoBehaviour
     {
         [SerializeField] private Transform _playersViewParent;
-        private ConnectionManager ConnectionManager => ConnectionManager.Instance;
-        
+
         private List<SessionPlayerView> _views = new List<SessionPlayerView>();
-        
+
         private GameConfig _gameConfig;
+        private ModulesFacade _modulesFacade;
+        private ConnectionManager _connectionManager;
 
         [Inject]
-        private void Construct(GameConfig gameConfig)
+        private void Construct(GameConfig gameConfig, ModulesFacade modulesFacade, ConnectionManager connectionManager)
         {
+            _connectionManager = connectionManager;
             _gameConfig = gameConfig;
+            _modulesFacade = modulesFacade;
         }
-        
+
         private void TrySpawnViews()
         {
             if (_views.Count != 0)
@@ -40,12 +43,7 @@ namespace Scripts.Runtime.UI
                 _views.Add(sessionPlayerView);
             }
         }
-
-        private void HandleKickBtnClicked(SessionPlayerView sessionPlayerView)
-        {
-            ConnectionManager.KickPlayer(sessionPlayerView.ClientId, "Kicked");
-        }
-
+        
         public void UpdatePlayers(List<PlayerInfo> playerInfos, List<ushort> pings)
         {
             TrySpawnViews();
@@ -56,14 +54,36 @@ namespace Scripts.Runtime.UI
                 var playerInfo = playerInfos[index];
                 SessionPlayerView sessionPlayerView = _views[index];
 
-                sessionPlayerView.SetKickBtnEnabled(ConnectionManager.IsServer && playerInfo.ClientId != ConnectionManager.ServerId);
+                sessionPlayerView.SetKickBtnEnabled(_connectionManager.IsServer && playerInfo.ClientId != _connectionManager.ServerId);
                 
                 sessionPlayerView.ClientId = playerInfo.ClientId;
-                sessionPlayerView.SetNickname(playerInfo.Name.Value);
                 sessionPlayerView.SetPing($"{pings[index]}");
+                SetNickname(sessionPlayerView, playerInfo);
                 
                 sessionPlayerView.gameObject.SetActive(true);
             }
+        }
+
+        private void SetNickname(SessionPlayerView view, PlayerInfo playerInfo)
+        {
+            view.SetNickname(playerInfo.Name.Value);
+            ResolveNickname(view, playerInfo).Forget();
+        }
+
+        private async UniTaskVoid ResolveNickname(SessionPlayerView view, PlayerInfo playerInfo)
+        {
+            var steamModule = _modulesFacade.GetSteamModule();
+
+            if (!steamModule.IsInitialized || playerInfo.SteamID == Constants.SteamIdNotAvailable)
+                return;
+
+            string steamName = await steamModule.GetSteamNameCachedAsync(playerInfo.SteamID, destroyCancellationToken);
+
+            if (string.IsNullOrEmpty(steamName))
+                return;
+
+            if (view != null && view.ClientId == playerInfo.ClientId)
+                view.SetNickname(steamName);
         }
 
         public void UpdatePing(List<ushort> pings)
@@ -73,6 +93,11 @@ namespace Scripts.Runtime.UI
                 SessionPlayerView sessionPlayerView = _views[index];
                 sessionPlayerView.SetPing($"{pings[index]}");
             }
+        }
+        
+        private void HandleKickBtnClicked(SessionPlayerView sessionPlayerView)
+        {
+            _connectionManager.KickPlayer(sessionPlayerView.ClientId, "Kicked");
         }
     }
 }

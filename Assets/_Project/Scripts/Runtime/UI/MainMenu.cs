@@ -1,17 +1,16 @@
 using Cysharp.Threading.Tasks;
+using Scripts.Runtime.Configs;
 using Scripts.Runtime.Core.Net;
 using Scripts.Runtime.Core.States;
 using Scripts.Runtime.Utils;
 using TMPro;
 using UniRx;
-using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using VContainer;
 
 namespace Scripts.Runtime.UI
 {
-    [RequireComponent(typeof(AutoInjecter))]
     public class MainMenu : Menu
     {
         [SerializeField] private DefaultTextReactiveButton _hostBtn;
@@ -19,8 +18,17 @@ namespace Scripts.Runtime.UI
 
         [SerializeField] private TMP_InputField _ipInput;
         [SerializeField] private TMP_InputField _portInput;
-        
+
+        [SerializeField] private TMP_InputField _lobbyNameInput;
+        [SerializeField] private TMP_InputField _lobbyIdInput;
+        [SerializeField] private DefaultTextReactiveButton _visibilityBtn;
+
         private GameStateMachine _gameStateMachine;
+        private GameConfig _gameConfig;
+        private ConnectionManager _connectionManager;
+        private UIController _uiController;
+
+        private bool _lobbyFriendsOnly = true;
 
         protected override void Awake()
         {
@@ -31,9 +39,26 @@ namespace Scripts.Runtime.UI
         }
 
         [Inject]
-        private void Construct(GameStateMachine gameStateMachine)
+        private void Construct(GameStateMachine gameStateMachine, GameConfig gameConfig,
+            ConnectionManager connectionManager, UIController uiController)
         {
+            _uiController = uiController;
+            _connectionManager = connectionManager;
             _gameStateMachine = gameStateMachine;
+            _gameConfig = gameConfig;
+        }
+
+        protected override void Start()
+        {
+            base.Start();
+            _visibilityBtn.Clicked.Subscribe(_ => UpdateLobbyVisibility(!_lobbyFriendsOnly)).AddTo(destroyCancellationToken);
+            UpdateLobbyVisibility(_lobbyFriendsOnly);
+        }
+
+        private void UpdateLobbyVisibility(bool isVisible)
+        {
+            _lobbyFriendsOnly = isVisible;
+            _visibilityBtn.SetText(isVisible ? "Friends Only" : "Private");
         }
 
         private void HandleJoinBtnClicked()
@@ -43,43 +68,76 @@ namespace Scripts.Runtime.UI
 
         private async UniTask TryJoin()
         {
-            if (!ushort.TryParse(_portInput.text, out ushort port))
-                return;
-            
-            DisableCanvasGroup();
-            
-            var started = await ConnectionManager.Instance.StartClient(_ipInput.text, port);
+            bool started;
 
+            if (_gameConfig.ConnectionConfig.Settings.IsSteamTransport)
+            {
+                started = await TryJoinSteam();
+            }
+            else
+            {
+                if (!ushort.TryParse(_portInput.text, out ushort port))
+                    return;
+
+                DisableCanvasGroup();
+                started = await _connectionManager.StartClient(_ipInput.text, port);
+            }
+
+            HandleJoinResult(started);
+        }
+
+        private async UniTask<bool> TryJoinSteam()
+        {
+            if (_lobbyIdInput != null && ulong.TryParse(_lobbyIdInput.text, out ulong lobbyId) && lobbyId != 0)
+            {
+                DisableCanvasGroup();
+                return await _connectionManager.JoinLobbyById(lobbyId);
+            }
+
+            if (!ulong.TryParse(_ipInput.text, out ulong hostSteamId))
+                return false;
+
+            DisableCanvasGroup();
+            return await _connectionManager.StartClientViaSteam(hostSteamId);
+        }
+
+        private void HandleJoinResult(bool started)
+        {
             EnableCanvasGroup();
-            
+
             if (!started)
             {
-                UIController.Instance.ShowInfoPopUp(Constants.PopUps.ErrorTitle, $"Error connecting to the server: {ConnectionManager.Instance.DisconnectReason}");
+                _uiController.ShowInfoPopUp(Constants.PopUps.ErrorTitle, $"Error connecting to the server: {_connectionManager.DisconnectReason}");
                 return;
             }
-            
-            UIController.Instance.HideMenu<MainMenu>();
-            
+
+            _uiController.HideMenu<MainMenu>();
+
             if (SceneManager.GetActiveScene().name == "Gameplay")
             {
                 _gameStateMachine.Enter<GameplayState>();
             }
             else
             {
-                UIController.Instance.ShowMenu<LobbyMenu>();
+                _uiController.ShowMenu<LobbyMenu>();
             }
         }
 
         private void HandleHostBtnClicked()
         {
-            var hosted = ConnectionManager.Instance.StartHost();
+            TryHost().Forget();
+        }
+
+        private async UniTask TryHost()
+        {
+            string lobbyName = _lobbyNameInput != null ? _lobbyNameInput.text : null;
+            bool hosted = await _connectionManager.StartHost(lobbyName, _lobbyFriendsOnly);
 
             if (hosted)
             {
-                UIController.Instance.HideMenu<MainMenu>();
-                UIController.Instance.ShowMenu<LobbyMenu>();
+                _uiController.HideMenu<MainMenu>();
+                _uiController.ShowMenu<LobbyMenu>();
             }
-            
         }
     }
 }

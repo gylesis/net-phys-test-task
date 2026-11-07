@@ -1,5 +1,4 @@
 using Scripts.Runtime.Core.States;
-using Scripts.Runtime.Utils;
 using UnityEngine;
 using VContainer;
 
@@ -17,7 +16,6 @@ namespace Scripts.Runtime.Core
 
         private void Start()
         {
-            _gameStateMachine = DiInjecter.Instance.Resolve<GameStateMachine>();
             _gameStateMachine.Enter<BootstrapState>();
         }
     }

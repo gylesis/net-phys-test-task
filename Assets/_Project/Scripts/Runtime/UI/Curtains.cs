@@ -1,16 +1,13 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace Scripts.Runtime.UI
 {
     public class Curtains : MonoBehaviour
     {
-        public static Curtains Instance { get; private set; }
-        
         [SerializeField] private CanvasGroup _canvasGroup;
 
         private void Awake()
         {
-            Instance = this;
             HideCurtains();
         }
 

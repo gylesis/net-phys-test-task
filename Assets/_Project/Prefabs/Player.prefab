@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 5333922178090789934}
   - component: {fileID: 2103515093175714241}
   - component: {fileID: 5934185438084885602}
-  - component: {fileID: 6959939724266493488}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -152,23 +151,6 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
---- !u!114 &6959939724266493488
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 677275513121528945}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 49215981bbcb4e6ba8f5a637a34730fd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Runtime.Installers.PlayerScope
-  parentReference:
-    TypeName: Scripts.Runtime.Installers.GameplayInstaller
-  autoRun: 1
-  autoInjectGameObjects:
-  - {fileID: 677275513121528945}
 --- !u!1 &2126527003798455124
 GameObject:
   m_ObjectHideFlags: 0
@@ -389,7 +371,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7364137996662840883}
-  - component: {fileID: 1829588523380553428}
   - component: {fileID: 3133223811847172755}
   m_Layer: 0
   m_Name: Render
@@ -415,18 +396,6 @@ Transform:
   - {fileID: 8063900328190501540}
   m_Father: {fileID: 1746883156968912389}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1829588523380553428
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8189273604738345586}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 802fc4788bd7401cb86c65df47e44cc9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Scripts.Runtime.Utils.AutoInjecter
 --- !u!114 &3133223811847172755
 MonoBehaviour:
   m_ObjectHideFlags: 0

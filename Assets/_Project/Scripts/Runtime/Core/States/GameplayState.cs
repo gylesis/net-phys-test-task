@@ -1,7 +1,6 @@
 using Scripts.Runtime.Core.Net;
 using Scripts.Runtime.Core.PlayerLogic;
 using Scripts.Runtime.UI;
-using Scripts.Runtime.Utils;
 using UniRx;
 using Unity.Netcode;
 
@@ -9,25 +8,38 @@ namespace Scripts.Runtime.Core.States
 {
     public class GameplayState : GameState
     {
-        private PlayerSpawner _playerSpawner;
+        private readonly ConnectionManager _connectionManager;
+        private readonly UIController _uiController;
+        private readonly Curtains _curtains;
+        private readonly PlayerSpawner _playerSpawner;
+
         private CompositeDisposable _disposable;
+
+        public GameplayState(ConnectionManager connectionManager, UIController uiController, Curtains curtains,
+            PlayerSpawner playerSpawner)
+        {
+            _playerSpawner = playerSpawner;
+            _curtains = curtains;
+            _uiController = uiController;
+            _connectionManager = connectionManager;
+        }
 
         public override void Enter()
         {
-            Curtains.Instance.HideCurtains();
-            UIController.Instance.ShowMenu<GameplayHUDMenu>();
+            _curtains.HideCurtains();
+            _uiController.ShowMenu<GameplayHUDMenu>();
 
-            _disposable ??= new CompositeDisposable();
-            _playerSpawner ??= DiInjecter.Instance.Resolve<PlayerSpawner>();
+            _disposable?.Dispose();
+            _disposable = new CompositeDisposable();
 
-            if (ConnectionManager.Instance.IsServer)
+            if (_connectionManager.IsServer)
             {
                 // for late joiners
-                ConnectionManager.Instance.ClientConnected.Subscribe(HandleClientConnected).AddTo(_disposable);
-                
-                ConnectionManager.Instance.ClientDisconnected.Subscribe(HandleClientDisconnected).AddTo(_disposable);
+                _connectionManager.ClientConnected.Subscribe(HandleClientConnected).AddTo(_disposable);
 
-                foreach (var client in ConnectionManager.Instance.ConnectedPlayers)
+                _connectionManager.ClientDisconnected.Subscribe(HandleClientDisconnected).AddTo(_disposable);
+
+                foreach (var client in _connectionManager.ConnectedPlayers)
                 {
                     var clientId = client.Value.ClientId;
                     HandleClientConnected(clientId);
@@ -38,23 +50,22 @@ namespace Scripts.Runtime.Core.States
         private void HandleClientConnected(ulong playerId)
         {
             var playerController = _playerSpawner.SpawnPlayer(playerId);
-            SessionInfo.Instance.AddPlayerObject(playerController);
+            _connectionManager.SessionInfo.AddPlayerObject(playerController);
         }
 
         private void HandleClientDisconnected(ulong playerId)
         {
-            SessionInfo.Instance.RemovePlayerObject(playerId);
+            _connectionManager.SessionInfo.RemovePlayerObject(playerId);
         }
-
-        public override void Tick() { }
 
         public override void Exit()
         {
-            UIController.Instance.HideAllActiveMenus();
+            _uiController.HideAllActiveMenus();
 
             if (NetworkManager.Singleton.IsServer)
             {
                 _disposable?.Dispose();
+                _disposable = null;
             }
         }
     }

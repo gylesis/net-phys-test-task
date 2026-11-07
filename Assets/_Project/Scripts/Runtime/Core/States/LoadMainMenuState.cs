@@ -22,8 +22,6 @@ namespace Scripts.Runtime.Core.States
             Machine.Enter<MainMenuState>();
         }
 
-        public override void Tick() { }
-
         public override void Exit() { }
     }
 }

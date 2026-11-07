@@ -1,7 +1,6 @@
 {
   "scopedRegistries": [],
   "dependencies": {
-    "com.community.netcode.transport.facepunch": "https://github.com/Unity-Technologies/multiplayer-community-contributions.git?path=/Transports/com.community.netcode.transport.facepunch",
     "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask#2.5.10",
     "com.unity.ai.navigation": "2.0.12",
     "com.unity.collab-proxy": "2.12.4",

@@ -1,11 +1,8 @@
-using System;
 using Scripts.Runtime.Configs;
-using Scripts.Runtime.Core.CameraLogic;
 using Scripts.Runtime.Core.PhysItems;
 using Scripts.Runtime.Services;
 using Scripts.Runtime.UI;
 using Scripts.Runtime.Utils;
-using UniRx;
 using Unity.Netcode;
 using UnityEngine;
 using VContainer;
@@ -15,13 +12,10 @@ namespace Scripts.Runtime.Core.PlayerLogic
     [RequireComponent(typeof(CharacterController))]
     public class PlayerController : NetworkContext
     {
-        public static PlayerController LocalPlayer { get; private set; }
-        private static Subject<PlayerController> LocalPlayerSpawned { get; } = new Subject<PlayerController>();
-        
         [SerializeField] private CharacterController _characterController;
         [SerializeField] private Transform _itemDragPoint;
         [SerializeField] private PlayerVisuals _playerVisuals;
-        
+
         public NetworkVariable<bool> IsPaused { get; private set; } = new NetworkVariable<bool>(false, writePerm: NetworkVariableWritePermission.Owner);
         public NetworkVariable<NetworkBehaviourReference> HoldingItem { get; set; } = new NetworkVariable<NetworkBehaviourReference>();
         public bool IsHoldingItem => HoldingItem.Value.TryGet(out _);
@@ -33,31 +27,39 @@ namespace Scripts.Runtime.Core.PlayerLogic
 
         private PlayerConfig _config;
         private InputService _input;
-        private CameraController _cameraController;
         private InteractionSystem _interactionSystem;
+        private LocalPlayerContext _localPlayerContext;
+        private UIController _uiController;
+        private GameplaySceneContext _sceneContext;
 
         [Inject]
-        private void Construct(GameConfig config, InputService input, CameraController cameraController, InteractionSystem interactionSystem)
+        private void Construct(GameConfig config, InputService input, InteractionSystem interactionSystem,
+            LocalPlayerContext localPlayerContext, UIController uiController, GameplaySceneContext sceneContext)
         {
+            _sceneContext = sceneContext;
+            _localPlayerContext = localPlayerContext;
+            _uiController = uiController;
             _interactionSystem = interactionSystem;
             _config = config.PlayerConfig;
             _input = input;
-            _cameraController = cameraController;
         }
 
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
 
+            EnsureInjected();
+
             IsPaused.OnValueChanged += HandlePauseChanged;
             HoldingItem.OnValueChanged += HandlePhysItemChanged;
-            
+
             if (IsOwner)
             {
-                LocalPlayer = this;
-                LocalPlayerSpawned.OnNext(this);
-                
-                _cameraController.Attach(this);
+                _localPlayerContext.Set(this);
+
+                if (_sceneContext.Camera != null)
+                    _sceneContext.Camera.Attach(this);
+
                 SetCursorLocked(true);
             }
         }
@@ -85,13 +87,13 @@ namespace Scripts.Runtime.Core.PlayerLogic
             
             if (isPaused)
             {
-                UIController.Instance.HideMenu<GameplayHUDMenu>();
-                UIController.Instance.ShowMenu<GameplayPauseMenu>();
+                _uiController.HideMenu<GameplayHUDMenu>();
+                _uiController.ShowMenu<GameplayPauseMenu>();
             }
             else
             {
-                UIController.Instance.HideMenu<GameplayPauseMenu>();
-                UIController.Instance.ShowMenu<GameplayHUDMenu>();
+                _uiController.HideMenu<GameplayPauseMenu>();
+                _uiController.ShowMenu<GameplayHUDMenu>();
             }
         }
 
@@ -103,10 +105,13 @@ namespace Scripts.Runtime.Core.PlayerLogic
             IsPaused.OnValueChanged -= HandlePauseChanged;
             HoldingItem.OnValueChanged -= HandlePhysItemChanged;
 
-            if (IsOwner && _cameraController != null)
+            if (IsOwner)
             {
+                _localPlayerContext.Clear(this);
                 SetCursorLocked(false);
-                _cameraController.gameObject.SetActive(false);
+
+                if (_sceneContext.Camera != null)
+                    _sceneContext.Camera.gameObject.SetActive(false);
             }
             base.OnNetworkDespawn();
         }
@@ -182,25 +187,29 @@ namespace Scripts.Runtime.Core.PlayerLogic
         }
 
         [Rpc(SendTo.Server)]
-        private void DropItemRpc()
+        private void DropItemRpc(Vector3 throwVelocity = default)
         {
-            if (!HoldingItem.Value.TryGet(out PhysItem item)) 
+            if (!HoldingItem.Value.TryGet(out PhysItem item))
                 return;
-            
+
             item.IsHeld.Value = false;
             item.NetworkObject.RemoveOwnership();
             HoldingItem.Value = null;
+
+            // Server becomes the physics authority after RemoveOwnership, so the throw
+            // velocity must be applied here — the client-local value is discarded.
+            if (throwVelocity != default)
+                item.Body.linearVelocity = throwVelocity;
         }
 
         private void ThrowItem()
         {
-            Vector3 throwVelocity = _cameraController.transform.forward * _config.ItemThrowForce + _characterController.velocity;
-            DropItem(throwVelocity);
+            Vector3 throwVelocity = _sceneContext.Camera.transform.forward * _config.ItemThrowForce + _characterController.velocity;
+            DropItemRpc(throwVelocity);
         }
 
-        private void DropItem(Vector3 throwVelocity = default)
+        private void DropItem()
         {
-            _heldItem.Body.linearVelocity = throwVelocity;
             DropItemRpc();
         }
 
@@ -234,7 +243,7 @@ namespace Scripts.Runtime.Core.PlayerLogic
         private void UpdateMovement()
         {
             Vector2 input = _input.Move;
-            Vector3 planar = Quaternion.Euler(0f, _cameraController.Yaw, 0f) * new Vector3(input.x, 0f, input.y);
+            Vector3 planar = Quaternion.Euler(0f, _sceneContext.Camera.Yaw, 0f) * new Vector3(input.x, 0f, input.y);
             planar = Vector3.ClampMagnitude(planar, 1f);
 
             float speed = _config.MoveSpeed * (_input.SprintPressed ? _config.SprintMultiplier : 1f);
@@ -270,11 +279,6 @@ namespace Scripts.Runtime.Core.PlayerLogic
         {
             Cursor.lockState = locked ? CursorLockMode.Locked : CursorLockMode.None;
             Cursor.visible = !locked;
-        }
-
-        public static IDisposable LocalPlayerSpawnedCallback(Action<PlayerController> callback)
-        {
-            return LocalPlayerSpawned?.Subscribe(callback);
         }
     }
 }

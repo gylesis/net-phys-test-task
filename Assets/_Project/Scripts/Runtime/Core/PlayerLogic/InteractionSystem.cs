@@ -7,34 +7,31 @@ using VContainer.Unity;
 
 namespace Scripts.Runtime.Core.PlayerLogic
 {
-    /// <summary>
-    /// Finds the closest spawned PhysItem within interaction radius of the local
-    /// player. Exposes the current candidate as a reactive property so UI (highlight,
-    /// prompt) and future grab logic subscribe instead of polling.
-    /// </summary>
     public class InteractionSystem : ITickable, IInitializable, IDisposable
     {
         private static readonly Collider[] _hits = new Collider[16];
         public IReadOnlyReactiveProperty<PhysItem> CurrentNearbyItem => _currentNearbyItem;
         
-        private readonly PlayerConfig _config;
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
         private readonly ReactiveProperty<PhysItem> _currentNearbyItem = new ReactiveProperty<PhysItem>(null);
-
         private PlayerController _playerController;
+        
+        private readonly PlayerConfig _config;
+        private readonly LocalPlayerContext _localPlayerContext;
 
-
-        public InteractionSystem(GameConfig config)
+        public InteractionSystem(GameConfig config, LocalPlayerContext localPlayerContext)
         {
+            _localPlayerContext = localPlayerContext;
             _config = config.PlayerConfig;
         }
 
         public void Initialize()
         {
-            PlayerController.LocalPlayerSpawnedCallback(OnLocalPlayerSpawned).AddTo(_disposable);
+            _playerController = _localPlayerContext.Current;
+            _localPlayerContext.Changed.Subscribe(OnLocalPlayerChanged).AddTo(_disposable);
         }
 
-        private void OnLocalPlayerSpawned(PlayerController player)
+        private void OnLocalPlayerChanged(PlayerController player)
         {
             _playerController = player;
         }

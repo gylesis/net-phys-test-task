@@ -4,13 +4,20 @@ namespace Scripts.Runtime.Core.States
 {
     public class MainMenuState : GameState
     {
-        public override void Enter()
+        private readonly UIController _uiController;
+        private readonly Curtains _curtains;
+
+        public MainMenuState(UIController uiController, Curtains curtains)
         {
-            Curtains.Instance.HideCurtains();
-            UIController.Instance.ShowMenu<MainMenu>();
+            _curtains = curtains;
+            _uiController = uiController;
         }
 
-        public override void Tick() { }
+        public override void Enter()
+        {
+            _curtains.HideCurtains();
+            _uiController.ShowMenu<MainMenu>();
+        }
 
         public override void Exit() { }
     }

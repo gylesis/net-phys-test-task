@@ -839,7 +839,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::_Project.Scripts.Runtime.Installers.GameplayInstaller
   parentReference:
-    TypeName: 
+    TypeName: Scripts.Runtime.Installers.RootScope
   autoRun: 1
   autoInjectGameObjects:
   - {fileID: 0}

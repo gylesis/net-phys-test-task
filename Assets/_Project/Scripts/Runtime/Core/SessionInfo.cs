@@ -2,26 +2,35 @@ using System;
 using Scripts.Runtime.Configs;
 using Scripts.Runtime.Core.Net;
 using Scripts.Runtime.Core.PlayerLogic;
+using Scripts.Runtime.Utils;
 using Unity.Netcode;
 using UnityEngine;
+using VContainer;
 
 namespace Scripts.Runtime.Core
 {
-    public class SessionInfo : NetworkBehaviour
+    public class SessionInfo : NetworkContext
     {
         public const float PingReportInterval = 1f;
-        public static SessionInfo Instance { get; private set; }
         public bool AmIRegisteredMyself { get; set; }
         public NetworkList<PlayerInfo> PlayersInfo = new();
         public NetworkList<ushort> PlayersPing = new();
         public NetworkList<NetworkObjectReference> PlayerControlledObjects = new();
-        
+
+        private ConnectionManager _connectionManager;
         private float _nextPingReport;
-        
+
+        [Inject]
+        private void Construct(ConnectionManager connectionManager)
+        {
+            _connectionManager = connectionManager;
+        }
+
         public override void OnNetworkSpawn()
         {
             base.OnNetworkSpawn();
-            Instance = this;
+
+            _connectionManager.AttachSessionInfo(this);
         }
 
         private void Update()
@@ -67,15 +76,18 @@ namespace Scripts.Runtime.Core
 
         public void AddPlayerObject(PlayerController playerController)
         {
-            if (!ConnectionManager.Instance.IsServer)
+            if (!IsServer)
                 return;
-            
+
             PlayerControlledObjects.Add(playerController.NetworkObject);
         }
-        
+
         public void RemovePlayerObject(ulong clientId)
         {
-            if (!ConnectionManager.Instance.IsServer)
+            if (!IsServer)
+                return;
+
+            if (NetworkManager.Singleton == null || NetworkManager.Singleton.ShutdownInProgress)
                 return;
             
             for (var i = 0; i < PlayerControlledObjects.Count; i++)
@@ -140,12 +152,6 @@ namespace Scripts.Runtime.Core
                     return;
                 }
             }
-        }
-
-        public override void OnDestroy()
-        {
-            base.OnDestroy();
-            Instance = null;
         }
     }
 }

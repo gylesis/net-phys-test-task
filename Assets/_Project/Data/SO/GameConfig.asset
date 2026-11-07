@@ -15,5 +15,7 @@ MonoBehaviour:
   _maxPlayers: 4
   _networkManagerPrefab: {fileID: 4617674279517171865, guid: a15da32b98279b94bab43964ae532209, type: 3}
   _sessionInfoPrefab: {fileID: 4459783998348900311, guid: 28d4b7386ba6c7d4093bda725457ad2f, type: 3}
+  _transport: 0
   _playerConfig: {fileID: 11400000, guid: 7a88dcb7e36d9a84faa72913aec3ad35, type: 2}
   _uiConfig: {fileID: 11400000, guid: 2f34b40b5fdffb2468c20f6eb48e1a84, type: 2}
+  _connectionConfig: {fileID: 11400000, guid: db0d8fa74ff6c4a46861a3437c11beba, type: 2}

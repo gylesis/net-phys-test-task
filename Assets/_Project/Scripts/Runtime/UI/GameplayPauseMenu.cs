@@ -2,6 +2,7 @@ using System;
 using Cysharp.Threading.Tasks;
 using Scripts.Runtime.Configs;
 using Scripts.Runtime.Core;
+using Scripts.Runtime.Core.Modules;
 using Scripts.Runtime.Core.Net;
 using Scripts.Runtime.Core.PlayerLogic;
 using Scripts.Runtime.Utils;
@@ -13,20 +14,24 @@ using VContainer;
 
 namespace Scripts.Runtime.UI
 {
-    [RequireComponent(typeof(AutoInjecter))]
     public class GameplayPauseMenu : Menu
     {
         private const float PingUpdateInterval = 1f;
-        
+
         [SerializeField] private DefaultReactiveButton _exitBtn;
         [SerializeField] private DefaultReactiveButton _resumeBtn;
         [SerializeField] private SessionPlayersView _sessionPlayersView;
         [SerializeField] private TMP_Dropdown _skinDropdown;
-        
-        private SessionInfo SessionInfo => ConnectionManager.Instance.SessionInfo;
+        [SerializeField] private TMP_Text _steamLobbyIdText;
         
         private IDisposable _updatePingDisposable;
         private GameConfig _gameConfig;
+        private ConnectionManager _connectionManager;
+        private UIController _uiController;
+        private LocalPlayerContext _localPlayerContext;
+        private ModulesFacade _modulesFacade;
+
+        private SessionInfo SessionInfo => _connectionManager.SessionInfo;
 
         protected override void Awake()
         {
@@ -34,9 +39,6 @@ namespace Scripts.Runtime.UI
 
             _resumeBtn.Clicked.Subscribe(unit => HandleResumeBtnClicked()).AddTo(destroyCancellationToken);
             _exitBtn.Clicked.Subscribe(unit => HandleExitBtnClicked()).AddTo(destroyCancellationToken);
-
-            ConnectionManager.Instance.ClientConnected.Subscribe(obj => UpdatePlayers()).AddTo(destroyCancellationToken);
-            ConnectionManager.Instance.ClientDisconnected.Subscribe(obj => UpdatePlayers()).AddTo(destroyCancellationToken);
 
             _skinDropdown.onValueChanged.AddListener(HandleSkinDropdownChanged);
         }
@@ -47,9 +49,36 @@ namespace Scripts.Runtime.UI
         }
 
         [Inject]
-        private void Construct(GameConfig gameConfig)
+        private void Construct(GameConfig gameConfig, ConnectionManager connectionManager, UIController uiController,
+            LocalPlayerContext localPlayerContext, ModulesFacade modulesFacade)
         {
+            _localPlayerContext = localPlayerContext;
+            _uiController = uiController;
+            _connectionManager = connectionManager;
             _gameConfig = gameConfig;
+            _modulesFacade = modulesFacade;
+        }
+
+        protected override void Start()
+        {
+            base.Start();
+            _connectionManager.ClientConnected.Subscribe(obj => UpdatePlayers()).AddTo(destroyCancellationToken);
+            _connectionManager.ClientDisconnected.Subscribe(obj => UpdatePlayers()).AddTo(destroyCancellationToken);
+        }
+
+        public override void Show()
+        {
+            UpdatePlayers();
+            UpdateSkinDropdown();
+            UpdateSteamLobbyId();
+            _updatePingDisposable = Observable.Interval(TimeSpan.FromSeconds(PingUpdateInterval)).Subscribe(l => UpdatePlayersPing());
+            base.Show();
+        }
+        
+        public override void Hide()
+        {
+            base.Hide();
+            _updatePingDisposable?.Dispose();
         }
 
         private void UpdatePlayers()
@@ -61,18 +90,10 @@ namespace Scripts.Runtime.UI
                 playerInfos.Add(SessionInfo.PlayersInfo[index]);
                 pings.Add(index < SessionInfo.PlayersPing.Count ? SessionInfo.PlayersPing[index] : (ushort)0);
             }
-            
+
             _sessionPlayersView.UpdatePlayers(playerInfos, pings);
         }
-
-        public override void Show()
-        {
-            UpdatePlayers();
-            UpdateSkinDropdown();
-            _updatePingDisposable = Observable.Interval(TimeSpan.FromSeconds(PingUpdateInterval)).Subscribe(l => UpdatePlayersPing());
-            base.Show();
-        }
-
+        
         private void UpdateSkinDropdown()
         {
             FillSkinDropdownOptions();
@@ -96,7 +117,7 @@ namespace Scripts.Runtime.UI
 
         private int GetLocalPlayerSkinIndex()
         {
-            var localPlayer = PlayerController.LocalPlayer;
+            var localPlayer = _localPlayerContext.Current;
             if (localPlayer == null)
                 return 0;
 
@@ -109,22 +130,18 @@ namespace Scripts.Runtime.UI
             return 0;
         }
 
-        private void HandleSkinDropdownChanged(int index)
+        private void UpdateSteamLobbyId()
         {
-            if (_gameConfig == null)
+            var steamModule = _modulesFacade.GetSteamModule();
+
+            if (!steamModule.IsInitialized || !steamModule.CurrentLobby.HasValue)
+            {
+                _steamLobbyIdText.gameObject.SetActive(false);
                 return;
+            }
 
-            var playerVisualDatas = _gameConfig.PlayerConfig.PlayerVisualDatas;
-            if (index < 0 || index >= playerVisualDatas.Count)
-                return;
-
-            SessionInfo.ChangeSkinRpc(playerVisualDatas[index].SkinType);
-        }
-
-        public override void Hide()
-        {
-            base.Hide();
-            _updatePingDisposable?.Dispose();
+            _steamLobbyIdText.gameObject.SetActive(true);
+            _steamLobbyIdText.text = $"Steam Lobby ID: {steamModule.CurrentLobby.Value.Id.Value}";
         }
 
         private void UpdatePlayersPing()
@@ -132,21 +149,30 @@ namespace Scripts.Runtime.UI
             ListPool<ushort>.Get(out var pings);
             foreach (var ping in SessionInfo.PlayersPing)
                 pings.Add(ping);
-                
+
             _sessionPlayersView.UpdatePing(pings);
+        }
+
+        private void HandleSkinDropdownChanged(int index)
+        {
+            var playerVisualDatas = _gameConfig.PlayerConfig.PlayerVisualDatas;
+            if (index < 0 || index >= playerVisualDatas.Count)
+                return;
+
+            SessionInfo.ChangeSkinRpc(playerVisualDatas[index].SkinType);
         }
 
         private void HandleExitBtnClicked()
         {
-            ConnectionManager.Instance.LeaveGame();
+            _connectionManager.LeaveGame();
         }
 
         private void HandleResumeBtnClicked()
         {
-            UIController.Instance.HideMenu<GameplayPauseMenu>();
-            UIController.Instance.ShowMenu<GameplayHUDMenu>();
-            
-            PlayerController.LocalPlayer.IsPaused.Value = false;
+            _uiController.HideMenu<GameplayPauseMenu>();
+            _uiController.ShowMenu<GameplayHUDMenu>();
+
+            _localPlayerContext.Current.IsPaused.Value = false;
         }
     }
 }

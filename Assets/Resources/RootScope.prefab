@@ -771,12 +771,12 @@ MonoBehaviour:
   parentReference:
     TypeName: 
   autoRun: 1
-  autoInjectGameObjects:
-  - {fileID: 1072576056389664509}
-  - {fileID: 8699197081813594599}
+  autoInjectGameObjects: []
   _gameConfig: {fileID: 11400000, guid: 5ce5cf346d18d484f92ac5805ebf8932, type: 2}
   _sceneLoader: {fileID: 3000459094737064229}
   _curtains: {fileID: 3859583338379309696}
+  _connectionManager: {fileID: 2797477791984090736}
+  _uiController: {fileID: 246040537116728342}
 --- !u!1 &8699197081813594599
 GameObject:
   m_ObjectHideFlags: 0

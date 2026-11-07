@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
@@ -8,9 +8,8 @@ namespace Scripts.Runtime.Core.Modules
 {
     public class ModulesFacade 
     {
-        private IReadOnlyList<IBootstrapModule> _modules;
-        
-        private Dictionary<Type, IBootstrapModule> _bootstrapModulesMap;
+        private readonly IReadOnlyList<IBootstrapModule> _modules;
+        private readonly Dictionary<Type, IBootstrapModule> _bootstrapModulesMap;
         
         public ModulesFacade(IReadOnlyList<IBootstrapModule> modules)
         {
