@@ -18,6 +18,7 @@ namespace Scripts.Runtime.Services
         private BetterActionReference InteractAction => _config.Interact;
         private BetterActionReference ThrowAction => _config.Throw;
         private BetterActionReference DeleteItemAction => _config.DeleteItem;
+        private BetterActionReference SpawnAction => _config.Spawn;
         private BetterActionReference PauseAction => _config.Pause;
 
         public bool IsEnabled { get; private set; }
@@ -31,6 +32,7 @@ namespace Scripts.Runtime.Services
         public bool InteractPressedOnce { get; private set; }
         public bool ThrowPressedOnce { get; private set; }
         public bool DeletePressedOnce { get; private set; }
+        public bool SpawnPressedOnce { get; private set; }
         public bool PausePressedOnce { get; private set; }
         public bool Interact { get; private set;}
 
@@ -58,6 +60,7 @@ namespace Scripts.Runtime.Services
             InteractPressedOnce = InteractAction.IsPressedOnce();
             ThrowPressedOnce = ThrowAction.IsPressedOnce();
             DeletePressedOnce = DeleteItemAction.IsPressedOnce();
+            SpawnPressedOnce = SpawnAction.IsPressedOnce();
             PausePressedOnce = PauseAction.IsPressedOnce();
         }
 

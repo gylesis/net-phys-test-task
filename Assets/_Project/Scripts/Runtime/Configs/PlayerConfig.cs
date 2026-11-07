@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Scripts.Runtime.Core.PhysItems;
 using Scripts.Runtime.Core.PlayerLogic;
 using Scripts.Runtime.Utils;
 using UnityEngine;
@@ -25,11 +26,13 @@ namespace Scripts.Runtime.Configs
         [SerializeField] private Vector3 _cameraOffset = new Vector3(0f, 2f, -4f);
 
         [Header("Interaction")]
+        [SerializeField] private PhysItem _physItemPrefab;
         [SerializeField] private float _interactionRadius = 2.5f;
         [SerializeField] private float _itemSpring = 150f;
         [SerializeField] private float _itemDamping = 28f;
         [SerializeField] private float _itemThrowForce = 8f;
         [SerializeField] private float _itemCompensateVelocityModifier = 1.3f;
+        [SerializeField] private float _itemSpawnDistance = 1.5f;
 
         [Header("Input")]
         [SerializeField] private BetterActionReference _move;
@@ -39,6 +42,7 @@ namespace Scripts.Runtime.Configs
         [SerializeField] private BetterActionReference _interact;
         [SerializeField] private BetterActionReference _throw;
         [SerializeField] private BetterActionReference _deleteItem;
+        [SerializeField] private BetterActionReference _spawn;
         [SerializeField] private BetterActionReference _pause;
 
         [Header("Visuals")] 
@@ -69,6 +73,10 @@ namespace Scripts.Runtime.Configs
 
         public float InteractionRadius => _interactionRadius;
 
+        public PhysItem PhysItemPrefab => _physItemPrefab;
+
+        public float ItemSpawnDistance => _itemSpawnDistance;
+
         public float ItemSpring => _itemSpring;
 
         public float ItemDamping => _itemDamping;
@@ -82,6 +90,7 @@ namespace Scripts.Runtime.Configs
         public BetterActionReference Interact => _interact;
         public BetterActionReference Throw => _throw;
         public BetterActionReference DeleteItem => _deleteItem;
+        public BetterActionReference Spawn => _spawn;
         public BetterActionReference Pause => _pause;
     }
 }

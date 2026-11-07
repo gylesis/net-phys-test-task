@@ -2,6 +2,7 @@ using Scripts.Runtime.Configs;
 using Scripts.Runtime.Core;
 using Scripts.Runtime.Core.Modules;
 using Scripts.Runtime.Core.Net;
+using Scripts.Runtime.Core.PhysItems;
 using Scripts.Runtime.Core.PlayerLogic;
 using Scripts.Runtime.Core.States;
 using Scripts.Runtime.Services;
@@ -63,6 +64,7 @@ namespace Scripts.Runtime.Installers
             builder.Register<GameplaySceneContext>(Lifetime.Singleton);
             builder.Register<InteractionSystem>(Lifetime.Singleton).AsImplementedInterfaces().AsSelf();
             builder.Register<PlayerSpawner>(Lifetime.Singleton).AsSelf();
+            builder.Register<ItemSpawner>(Lifetime.Singleton).AsSelf();
 
             builder.RegisterInstance(_sceneLoader);
 

@@ -28,18 +28,20 @@ namespace Scripts.Runtime.Core.PlayerLogic
         private PlayerConfig _config;
         private InputService _input;
         private InteractionSystem _interactionSystem;
+        private ItemSpawner _itemSpawner;
         private LocalPlayerContext _localPlayerContext;
         private UIController _uiController;
         private GameplaySceneContext _sceneContext;
 
         [Inject]
         private void Construct(GameConfig config, InputService input, InteractionSystem interactionSystem,
-            LocalPlayerContext localPlayerContext, UIController uiController, GameplaySceneContext sceneContext)
+            ItemSpawner itemSpawner, LocalPlayerContext localPlayerContext, UIController uiController, GameplaySceneContext sceneContext)
         {
             _sceneContext = sceneContext;
             _localPlayerContext = localPlayerContext;
             _uiController = uiController;
             _interactionSystem = interactionSystem;
+            _itemSpawner = itemSpawner;
             _config = config.PlayerConfig;
             _input = input;
         }
@@ -99,8 +101,10 @@ namespace Scripts.Runtime.Core.PlayerLogic
 
         public override void OnNetworkDespawn()
         {
-            if (_heldItem != null)
-                DropItem();
+            // The owner may disconnect abruptly (no RPC is guaranteed in that case), so the
+            // server releases the held item directly instead of relying on DropItemRpc.
+            if (IsServer && HoldingItem.Value.TryGet(out PhysItem heldItem))
+                ReleaseHeldItem(heldItem);
 
             IsPaused.OnValueChanged -= HandlePauseChanged;
             HoldingItem.OnValueChanged -= HandlePhysItemChanged;
@@ -159,6 +163,9 @@ namespace Scripts.Runtime.Core.PlayerLogic
                     TryTakeItemRpc(item);
                 }
             }
+
+            if (_input.SpawnPressedOnce)
+                SpawnItemRpc();
             
             if (IsHoldingItem)
             {
@@ -192,14 +199,19 @@ namespace Scripts.Runtime.Core.PlayerLogic
             if (!HoldingItem.Value.TryGet(out PhysItem item))
                 return;
 
-            item.IsHeld.Value = false;
-            item.NetworkObject.RemoveOwnership();
-            HoldingItem.Value = null;
+            ReleaseHeldItem(item);
 
             // Server becomes the physics authority after RemoveOwnership, so the throw
             // velocity must be applied here — the client-local value is discarded.
             if (throwVelocity != default)
                 item.Body.linearVelocity = throwVelocity;
+        }
+
+        private void ReleaseHeldItem(PhysItem item)
+        {
+            item.IsHeld.Value = false;
+            item.NetworkObject.RemoveOwnership();
+            HoldingItem.Value = default;
         }
 
         private void ThrowItem()
@@ -214,11 +226,21 @@ namespace Scripts.Runtime.Core.PlayerLogic
         }
 
         [Rpc(SendTo.Server)]
+        private void SpawnItemRpc()
+        {
+            Vector3 spawnPosition = transform.position
+                                    + Vector3.up * (_characterController.height * 0.5f)
+                                    + transform.forward * _config.ItemSpawnDistance;
+
+            _itemSpawner.SpawnItem(_config.PhysItemPrefab, spawnPosition, transform.rotation);
+        }
+
+        [Rpc(SendTo.Server)]
         private void DeleteHoldingItemRpc()
         {
-            if (!HoldingItem.Value.TryGet(out PhysItem item)) 
+            if (!HoldingItem.Value.TryGet(out PhysItem item))
                 return;
-            
+
             item.NetworkObject.Despawn();
             HoldingItem.Value = null;
         }
