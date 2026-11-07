@@ -23,6 +23,9 @@ namespace Scripts.Runtime.UI
         [SerializeField] private TMP_InputField _lobbyIdInput;
         [SerializeField] private DefaultTextReactiveButton _visibilityBtn;
 
+        [SerializeField] private CanvasGroup _steamContainer;
+        [SerializeField] private TMP_Text _steamStatus;
+        
         private GameStateMachine _gameStateMachine;
         private GameConfig _gameConfig;
         private ConnectionManager _connectionManager;
@@ -53,6 +56,15 @@ namespace Scripts.Runtime.UI
             base.Start();
             _visibilityBtn.Clicked.Subscribe(_ => UpdateLobbyVisibility(!_lobbyFriendsOnly)).AddTo(destroyCancellationToken);
             UpdateLobbyVisibility(_lobbyFriendsOnly);
+
+            var isSteamTransport = _gameConfig.ConnectionConfig.Settings.IsSteamTransport;
+            _steamStatus.gameObject.SetActive(!isSteamTransport);
+            _steamStatus.text = isSteamTransport ? "Steam is available." : "Steam is not available.";
+            _steamContainer.alpha = isSteamTransport ? 1 : 0.6f;
+            _steamContainer.interactable = false;
+            
+            _ipInput.gameObject.SetActive(!isSteamTransport);
+            _portInput.gameObject.SetActive(!isSteamTransport);
         }
 
         private void UpdateLobbyVisibility(bool isVisible)

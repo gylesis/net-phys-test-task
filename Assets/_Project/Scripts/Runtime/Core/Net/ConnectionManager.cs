@@ -31,6 +31,7 @@ namespace Scripts.Runtime.Core.Net
         public bool IsServer => _networkManager.IsServer;
         public ulong ServerId => NetworkManager.ServerClientId;
         public ulong LocalClientId => _networkManager.LocalClientId;
+
         public SessionInfo SessionInfo => _sessionInfo;
         private Subject<Unit> _startGameRequested = new Subject<Unit>();
 
@@ -97,8 +98,6 @@ namespace Scripts.Runtime.Core.Net
 
         public async UniTask<bool> StartHost(string lobbyName = null, bool lobbyFriendsOnly = true)
         {
-            ApplyNetworkSimulation();
-
             var steamModule = _modulesFacade.GetSteamModule();
 
             if (_gameConfig.ConnectionConfig.Settings.IsSteamTransport)
@@ -163,8 +162,6 @@ namespace Scripts.Runtime.Core.Net
         
         public async UniTask<bool> StartClient(string address, ushort port)
         {
-            ApplyNetworkSimulation();
-
             var unityTransport = (UnityTransport)_networkManager.NetworkConfig.NetworkTransport;
             unityTransport.SetConnectionData(address, port);
 
@@ -192,26 +189,7 @@ namespace Scripts.Runtime.Core.Net
 
             return result;
         }
-        
-        private void ApplyNetworkSimulation()
-        {
-            if (_gameConfig.ConnectionConfig.Settings.IsSteamTransport || _networkManager == null)
-                return;
-
-            if (!NetworkSimDebugGui.HasDesiredParameters && !NetworkSimDebugGui.NeedsReset)
-                return;
-
-            NetworkSimDebugGui.GetDesiredParameters(out int packetDelayMs, out int packetJitterMs, out int dropRatePercent);
-
-            var unityTransport = (UnityTransport)_networkManager.NetworkConfig.NetworkTransport;
-            unityTransport.SetDebugSimulatorParameters(packetDelayMs, packetJitterMs, dropRatePercent);
-
-            if (NetworkSimDebugGui.HasDesiredParameters)
-                NetworkSimDebugGui.MarkApplied();
-            else
-                NetworkSimDebugGui.MarkReset();
-        }
-        
+      
         private ulong ParseLobbyId(string connectString)
         {
             int separatorIndex = connectString.IndexOf(':');

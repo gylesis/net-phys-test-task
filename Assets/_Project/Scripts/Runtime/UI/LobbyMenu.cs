@@ -45,7 +45,7 @@ namespace Scripts.Runtime.UI
         protected override void Start()
         {
             base.Start();
-            _inviteBtn.gameObject.SetActive(_modulesFacade.GetSteamModule().IsInitialized);
+            _inviteBtn.gameObject.SetActive(_gameConfig.ConnectionConfig.Settings.IsSteamTransport);
         }
 
         public override void Show()
